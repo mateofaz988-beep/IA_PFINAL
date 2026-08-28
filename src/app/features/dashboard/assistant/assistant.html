@@ -1,0 +1,223 @@
+<div class="mx-auto max-w-3xl px-4 py-6">
+  <div class="bg-white rounded-xl border border-slate-200 flex flex-col h-[75vh] overflow-hidden">
+    <!-- Encabezado -->
+    <div class="flex items-center justify-between px-4 py-3 border-b border-slate-200">
+      <div>
+        <h1 class="font-semibold text-slate-900">Asistente de vehículos</h1>
+        <p class="text-xs text-slate-500">
+          Analiza fotos y las contrasta contra el catálogo del clasificador (196 modelos hasta 2012).
+        </p>
+      </div>
+      <div class="flex items-center gap-3 shrink-0">
+        <div class="flex items-center gap-2 rounded-lg border border-slate-200 px-2.5 py-1.5">
+          <label class="flex items-center gap-1.5 text-sm text-slate-600 cursor-pointer select-none" title="Control 1: modelo de clasificación de imágenes (Taller 2)">
+            <input
+              type="checkbox"
+              [checked]="classifierEnabled()"
+              (change)="classifierEnabled.set($any($event.target).checked)"
+              class="h-4 w-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
+            />
+            Clasificador de imágenes
+          </label>
+          <span class="text-slate-300">·</span>
+          <label class="flex items-center gap-1.5 text-sm text-slate-600 cursor-pointer select-none" title="Control 2: respuesta por voz">
+            <input
+              type="checkbox"
+              [checked]="voiceEnabled()"
+              (change)="voiceEnabled.set($any($event.target).checked)"
+              class="h-4 w-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
+            />
+            Voz
+          </label>
+        </div>
+        <button
+          type="button"
+          (click)="resetConversation()"
+          class="text-xs text-slate-500 hover:text-slate-700 border border-slate-300 rounded-md px-2.5 py-1.5 transition"
+        >
+          Reiniciar
+        </button>
+      </div>
+    </div>
+
+    <!-- Mensajes -->
+    <div class="flex-1 overflow-y-auto px-4 py-4 space-y-4">
+      @if (messages().length === 0) {
+        <p class="text-sm text-slate-400 text-center py-10">Envía un mensaje o una foto para empezar.</p>
+      }
+
+      @for (message of messages(); track $index) {
+        <div class="flex" [class.justify-end]="message.role === 'user'">
+          <div
+            class="max-w-[80%] rounded-2xl px-4 py-2.5"
+            [class]="
+              message.role === 'user'
+                ? 'bg-indigo-600 text-white'
+                : 'bg-slate-50 border border-slate-200 text-slate-800'
+            "
+          >
+            @if (message.imageUrl) {
+              <img [src]="message.imageUrl" alt="Imagen enviada" class="mb-2 max-h-48 rounded-lg object-cover" />
+            }
+
+            <p class="text-sm whitespace-pre-wrap">
+              {{ message.text }}
+              @if (message.streaming) {
+                <span class="inline-block w-1.5 h-4 bg-slate-400 ml-0.5 align-middle animate-pulse"></span>
+              }
+            </p>
+
+            @if (message.audioUrl) {
+              <audio [src]="message.audioUrl" controls class="mt-2 w-full h-8"></audio>
+            }
+
+            @if (message.role === 'assistant' && message.prefiltro; as prefiltro) {
+              <details class="mt-2 text-sm">
+                <summary class="cursor-pointer select-none text-indigo-600 font-medium">
+                  Ver detalle del análisis
+                </summary>
+
+                <div class="mt-2 space-y-3 rounded-md bg-white border border-slate-200 p-3">
+                  <div class="flex flex-wrap items-center gap-2">
+                    @if (prefiltro.dentro_de_alcance) {
+                      <span
+                        class="inline-flex items-center rounded-full bg-emerald-100 text-emerald-700 px-2.5 py-1 text-xs font-medium"
+                      >
+                        Dentro del catálogo (hasta 2012)
+                      </span>
+                    } @else {
+                      <span
+                        class="inline-flex items-center rounded-full bg-amber-100 text-amber-700 px-2.5 py-1 text-xs font-medium"
+                      >
+                        Fuera de catálogo
+                      </span>
+                    }
+                    @if (prefiltro.anio_estimado) {
+                      <span class="text-xs text-slate-500">
+                        Año estimado: {{ prefiltro.anio_estimado }} (confianza {{ prefiltro.confianza_anio }})
+                      </span>
+                    }
+                  </div>
+
+                  <dl class="grid grid-cols-2 gap-x-4 gap-y-1 text-xs text-slate-600">
+                    <dt class="text-slate-400">Marca aparente</dt>
+                    <dd>{{ prefiltro.marca_aparente || '—' }}</dd>
+                    <dt class="text-slate-400">Tipo</dt>
+                    <dd>{{ prefiltro.tipo || '—' }}</dd>
+                  </dl>
+
+                  <p class="text-xs text-slate-500 italic">{{ prefiltro.razon }}</p>
+
+                  @if (!prefiltro.dentro_de_alcance) {
+                    <p class="text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-md px-3 py-2">
+                      No se consultó el modelo clasificador: el vehículo quedó fuera del catálogo de 196 clases.
+                    </p>
+                  } @else if (!message.classifierWasEnabled) {
+                    <p class="text-xs text-slate-500 bg-slate-50 border border-slate-200 rounded-md px-3 py-2">
+                      El control "Clasificador de imágenes" estaba desactivado en este turno — el asistente
+                      describió el vehículo sin consultar el modelo del Taller 2.
+                    </p>
+                  } @else if (message.clasificacion?.error) {
+                    <p class="text-xs text-red-600 bg-red-50 border border-red-200 rounded-md px-3 py-2">
+                      El clasificador no respondió: {{ message.clasificacion?.error }}
+                    </p>
+                  } @else if (message.clasificacion?.alternativas?.length) {
+                    <div>
+                      <p class="text-xs uppercase tracking-wide text-slate-400 mb-1">Top 5 del clasificador</p>
+                      <ul class="space-y-1">
+                        @for (alt of message.clasificacion?.alternativas; track alt.clase) {
+                          <li class="flex items-center gap-2 text-xs">
+                            <span
+                              class="flex-1 truncate"
+                              [class.font-semibold]="alt.clase === message.clasificacion?.prediccion"
+                            >
+                              {{ alt.clase }}
+                            </span>
+                            <span class="text-slate-500 w-12 text-right">
+                              {{ alt.confianza * 100 | number: '1.0-1' }}%
+                            </span>
+                          </li>
+                        }
+                      </ul>
+                    </div>
+                  } @else {
+                    <p class="text-xs text-slate-500 bg-slate-50 border border-slate-200 rounded-md px-3 py-2">
+                      No se recibió clasificación para este turno.
+                    </p>
+                  }
+                </div>
+              </details>
+            }
+          </div>
+        </div>
+      }
+
+      @if (progressText(); as progress) {
+        <div class="flex justify-start">
+          <div class="max-w-[80%] rounded-2xl px-4 py-2.5 bg-slate-50 border border-slate-200 text-slate-500 text-sm">
+            <div class="flex items-center gap-2">
+              <span class="inline-block h-2 w-2 rounded-full bg-indigo-400 animate-pulse"></span>
+              <span>{{ progress }}</span>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+
+    <!-- Error -->
+    @if (errorMessage(); as error) {
+      <div class="mx-4 mb-2 rounded-md bg-red-50 border border-red-200 px-3 py-2 flex items-center justify-between gap-3">
+        <p class="text-sm text-red-700">{{ error }}</p>
+        <button type="button" (click)="retry()" class="text-sm font-medium text-red-700 underline whitespace-nowrap">
+          Reintentar
+        </button>
+      </div>
+    }
+
+    <!-- Composer -->
+    <div class="border-t border-slate-200 p-3 space-y-2">
+      @if (selectedImagePreview(); as preview) {
+        <div class="relative inline-block">
+          <img [src]="preview" alt="Vista previa" class="h-16 w-16 rounded-lg object-cover border border-slate-200" />
+          <button
+            type="button"
+            (click)="removeSelectedImage()"
+            aria-label="Quitar imagen"
+            class="absolute -top-2 -right-2 h-5 w-5 rounded-full bg-slate-800 text-white text-xs flex items-center justify-center"
+          >
+            ✕
+          </button>
+        </div>
+      }
+
+      <div class="flex items-center gap-2">
+        <label
+          class="cursor-pointer text-slate-500 hover:text-indigo-600 p-2 shrink-0"
+          aria-label="Adjuntar imagen"
+        >
+          📷
+          <input type="file" accept="image/*" class="hidden" (change)="onFileSelected($event)" />
+        </label>
+
+        <input
+          type="text"
+          [value]="draftText()"
+          (input)="onDraftInput($event)"
+          (keydown.enter)="send()"
+          [disabled]="sending()"
+          placeholder="Escribe tu mensaje..."
+          class="flex-1 rounded-full border border-slate-300 px-4 py-2 text-sm focus:border-indigo-500 focus:ring-indigo-500 focus:outline-none focus:ring-1 disabled:opacity-60"
+        />
+
+        <button
+          type="button"
+          (click)="send()"
+          [disabled]="sending() || !draftText().trim()"
+          class="rounded-full bg-indigo-600 text-white px-4 py-2 text-sm font-medium hover:bg-indigo-700 transition disabled:opacity-50 shrink-0"
+        >
+          Enviar
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

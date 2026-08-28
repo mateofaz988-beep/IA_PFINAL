@@ -1,0 +1,78 @@
+<div class="min-h-screen flex items-center justify-center bg-slate-50 px-4">
+  <div class="w-full max-w-sm bg-white rounded-xl shadow-sm border border-slate-200 p-8">
+    <h1 class="text-xl font-semibold text-slate-900 mb-1">Crear cuenta</h1>
+    <p class="text-sm text-slate-500 mb-6">Regístrate para evaluar exámenes de análisis automotriz.</p>
+
+    <form [formGroup]="form" (ngSubmit)="submit()" class="space-y-4">
+      <div>
+        <label for="displayName" class="block text-sm font-medium text-slate-700 mb-1">Nombre</label>
+        <input
+          id="displayName"
+          type="text"
+          formControlName="displayName"
+          autocomplete="name"
+          class="w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:ring-indigo-500 focus:outline-none focus:ring-1"
+        />
+      </div>
+
+      <div>
+        <label for="email" class="block text-sm font-medium text-slate-700 mb-1">Correo electrónico</label>
+        <input
+          id="email"
+          type="email"
+          formControlName="email"
+          autocomplete="email"
+          class="w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:ring-indigo-500 focus:outline-none focus:ring-1"
+        />
+        @if (form.controls.email.invalid && form.controls.email.touched) {
+          <p class="mt-1 text-xs text-red-600">Ingresa un correo válido.</p>
+        }
+      </div>
+
+      <div>
+        <label for="password" class="block text-sm font-medium text-slate-700 mb-1">Contraseña</label>
+        <input
+          id="password"
+          type="password"
+          formControlName="password"
+          autocomplete="new-password"
+          class="w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:ring-indigo-500 focus:outline-none focus:ring-1"
+        />
+        @if (form.controls.password.invalid && form.controls.password.touched) {
+          <p class="mt-1 text-xs text-red-600">Mínimo 6 caracteres.</p>
+        }
+      </div>
+
+      <div>
+        <label for="confirmPassword" class="block text-sm font-medium text-slate-700 mb-1">Confirmar contraseña</label>
+        <input
+          id="confirmPassword"
+          type="password"
+          formControlName="confirmPassword"
+          autocomplete="new-password"
+          class="w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:ring-indigo-500 focus:outline-none focus:ring-1"
+        />
+        @if (form.errors?.['passwordsMismatch'] && form.controls.confirmPassword.touched) {
+          <p class="mt-1 text-xs text-red-600">Las contraseñas no coinciden.</p>
+        }
+      </div>
+
+      @if (errorMessage(); as error) {
+        <p class="text-sm text-red-600 bg-red-50 border border-red-200 rounded-md px-3 py-2">{{ error }}</p>
+      }
+
+      <button
+        type="submit"
+        [disabled]="isSubmitting()"
+        class="w-full rounded-md bg-indigo-600 text-white text-sm font-medium py-2.5 hover:bg-indigo-700 transition disabled:opacity-60"
+      >
+        {{ isSubmitting() ? 'Creando cuenta...' : 'Crear cuenta' }}
+      </button>
+    </form>
+
+    <p class="mt-6 text-sm text-center text-slate-500">
+      ¿Ya tienes cuenta?
+      <a routerLink="/login" class="text-indigo-600 font-medium hover:underline">Inicia sesión</a>
+    </p>
+  </div>
+</div>

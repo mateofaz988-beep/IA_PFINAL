@@ -1,0 +1,179 @@
+<div class="mx-auto max-w-4xl px-4 py-8">
+  <h1 class="text-2xl font-semibold text-slate-900">Nueva evaluación</h1>
+  <p class="mt-1 text-sm text-slate-500">
+    Define el problema de análisis automotriz, las respuestas esperadas y sube las hojas del estudiante.
+  </p>
+
+  <form [formGroup]="form" (ngSubmit)="submit()" class="mt-6 space-y-8">
+    <!-- Datos generales -->
+    <section class="bg-white rounded-xl border border-slate-200 p-6 space-y-4">
+      <h2 class="font-medium text-slate-800">Datos generales</h2>
+
+      <div class="grid sm:grid-cols-2 gap-4">
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-1">Título del problema</label>
+          <input
+            type="text"
+            formControlName="problem_title"
+            placeholder="Ej: Análisis de frenado en curva"
+            class="w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:ring-indigo-500 focus:outline-none focus:ring-1"
+          />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-1">Nombre del estudiante (opcional)</label>
+          <input
+            type="text"
+            formControlName="student_name"
+            placeholder="Ej: Juan Pérez"
+            class="w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:ring-indigo-500 focus:outline-none focus:ring-1"
+          />
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-slate-700 mb-1">
+          Enunciado general
+          <span class="text-slate-400 font-normal">(admite LaTeX, p. ej. $v_0 = 20\ m/s$)</span>
+        </label>
+        <textarea
+          formControlName="general_statement"
+          rows="4"
+          placeholder="Un vehículo de masa $m = 1200\ kg$ ..."
+          class="w-full rounded-md border border-slate-300 px-3 py-2 text-sm font-mono focus:border-indigo-500 focus:ring-indigo-500 focus:outline-none focus:ring-1"
+        ></textarea>
+        @if (form.controls.general_statement.value) {
+          <div class="mt-2 rounded-md bg-slate-50 border border-slate-200 px-3 py-2 text-sm">
+            <p class="text-xs uppercase tracking-wide text-slate-400 mb-1">Vista previa</p>
+            <div [appLatex]="form.controls.general_statement.value"></div>
+          </div>
+        }
+      </div>
+    </section>
+
+    <!-- Ejercicios -->
+    <section class="bg-white rounded-xl border border-slate-200 p-6 space-y-5">
+      <div class="flex items-center justify-between">
+        <h2 class="font-medium text-slate-800">Ejercicios y ponderaciones</h2>
+        <span class="text-sm text-slate-500">Total: {{ totalWeight }} pts</span>
+      </div>
+
+      <div formArrayName="exercises" class="space-y-5">
+        @for (exercise of exercises.controls; track exercise; let i = $index) {
+          <div [formGroupName]="i" class="rounded-lg border border-slate-200 p-4 space-y-3">
+            <div class="flex items-center justify-between">
+              <h3 class="text-sm font-semibold text-slate-700">Ejercicio {{ i + 1 }}</h3>
+              @if (exercises.length > 1) {
+                <button
+                  type="button"
+                  (click)="removeExercise(i)"
+                  class="text-xs text-red-600 hover:underline"
+                >
+                  Eliminar
+                </button>
+              }
+            </div>
+
+            <div class="grid sm:grid-cols-3 gap-3">
+              <div class="sm:col-span-2">
+                <label class="block text-xs font-medium text-slate-600 mb-1">Título</label>
+                <input
+                  type="text"
+                  formControlName="title"
+                  placeholder="Ej: Cálculo de la distancia de frenado"
+                  class="w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:ring-indigo-500 focus:outline-none focus:ring-1"
+                />
+              </div>
+              <div>
+                <label class="block text-xs font-medium text-slate-600 mb-1">Ponderación (pts)</label>
+                <input
+                  type="number"
+                  step="0.5"
+                  min="0.5"
+                  formControlName="weight"
+                  class="w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:ring-indigo-500 focus:outline-none focus:ring-1"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-xs font-medium text-slate-600 mb-1">Enunciado del ejercicio (LaTeX)</label>
+              <textarea
+                formControlName="statement"
+                rows="3"
+                placeholder="Calcule $d$ si $a = -5\ m/s^2$..."
+                class="w-full rounded-md border border-slate-300 px-3 py-2 text-sm font-mono focus:border-indigo-500 focus:ring-indigo-500 focus:outline-none focus:ring-1"
+              ></textarea>
+              @if (exercise.controls.statement.value) {
+                <div class="mt-2 rounded-md bg-slate-50 border border-slate-200 px-3 py-2 text-sm">
+                  <div [appLatex]="exercise.controls.statement.value"></div>
+                </div>
+              }
+            </div>
+
+            <div>
+              <label class="block text-xs font-medium text-slate-600 mb-1">Respuesta / procedimiento esperado</label>
+              <textarea
+                formControlName="expected_answer"
+                rows="2"
+                placeholder="d = 40 m"
+                class="w-full rounded-md border border-slate-300 px-3 py-2 text-sm font-mono focus:border-indigo-500 focus:ring-indigo-500 focus:outline-none focus:ring-1"
+              ></textarea>
+            </div>
+          </div>
+        }
+      </div>
+
+      <button
+        type="button"
+        (click)="addExercise()"
+        class="text-sm font-medium text-indigo-600 hover:underline"
+      >
+        + Agregar ejercicio
+      </button>
+    </section>
+
+    <!-- Imágenes -->
+    <section class="bg-white rounded-xl border border-slate-200 p-6 space-y-4">
+      <h2 class="font-medium text-slate-800">Hojas de respuesta del estudiante</h2>
+      <p class="text-sm text-slate-500">Sube fotos o escaneos de la hoja de cálculo escrita a mano.</p>
+
+      <label
+        class="flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-slate-300 py-8 cursor-pointer hover:border-indigo-400 transition"
+      >
+        <span class="text-sm text-slate-600">Haz clic para seleccionar imágenes</span>
+        <span class="text-xs text-slate-400 mt-1">PNG, JPG</span>
+        <input type="file" accept="image/*" multiple class="hidden" (change)="onFilesSelected($event)" />
+      </label>
+
+      @if (images().length > 0) {
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          @for (image of images(); track image.base64; let i = $index) {
+            <div class="relative group rounded-lg overflow-hidden border border-slate-200">
+              <img [src]="image.base64" [alt]="image.name" class="h-28 w-full object-cover" />
+              <button
+                type="button"
+                (click)="removeImage(i)"
+                class="absolute top-1 right-1 rounded-full bg-black/60 text-white text-xs h-6 w-6 flex items-center justify-center opacity-0 group-hover:opacity-100 transition"
+                aria-label="Eliminar imagen"
+              >
+                ✕
+              </button>
+            </div>
+          }
+        </div>
+      }
+    </section>
+
+    @if (errorMessage(); as error) {
+      <p class="text-sm text-red-600 bg-red-50 border border-red-200 rounded-md px-3 py-2">{{ error }}</p>
+    }
+
+    <button
+      type="submit"
+      [disabled]="isSubmitting()"
+      class="w-full sm:w-auto rounded-md bg-indigo-600 text-white text-sm font-medium px-6 py-2.5 hover:bg-indigo-700 transition disabled:opacity-60"
+    >
+      {{ isSubmitting() ? 'Evaluando...' : 'Evaluar solución' }}
+    </button>
+  </form>
+</div>
