@@ -21,14 +21,6 @@ export const routes: Routes = [
     children: [
       {
         path: '',
-        loadComponent: () => import('./features/dashboard/form/dashboard-form').then((m) => m.DashboardForm),
-      },
-      {
-        path: 'resultados',
-        loadComponent: () => import('./features/dashboard/results/results').then((m) => m.Results),
-      },
-      {
-        path: 'asistente',
         loadComponent: () => import('./features/dashboard/assistant/assistant').then((m) => m.Assistant),
       },
     ],

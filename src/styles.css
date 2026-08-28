@@ -1,5 +1,57 @@
 @import "tailwindcss";
 
+/* =====================================================================
+   AutoScan — sistema de tokens
+   Paleta sacada del taller: pintura automotriz, metal, papel técnico.
+   Tipografía: rótulo industrial (display) + familia técnica IBM Plex
+   (texto/datos) para que confianza y nombres de clase se lean como
+   lo que son — datos de instrumento, no prosa.
+   ===================================================================== */
+@theme {
+  /* Color — 6 valores nombrados, nada de índigo por defecto */
+  --color-asphalt: #1c1a17; /* tinta / superficies oscuras */
+  --color-steel: #5b5f66; /* texto secundario, bordes estructurales */
+  --color-spec-paper: #f3eee3; /* fondo — papel de ficha técnica */
+  --color-signal-amber: #db8a2e; /* acción primaria / "en proceso" */
+  --color-verdigris: #3e7268; /* verificado / alta confianza / en catálogo */
+  --color-rust: #a24a2a; /* límite conocido / confianza baja */
+
+  /* Tipografía */
+  --font-display: "Big Shoulders", "Arial Narrow", sans-serif;
+  --font-sans: "IBM Plex Sans", "Segoe UI", sans-serif;
+  --font-data: "IBM Plex Mono", ui-monospace, "SFMono-Regular", monospace;
+
+  /* Escala explícita: los roles display/data que no cubre la escala
+     estándar de Tailwind (text-xs..text-6xl, que seguimos usando para
+     cuerpo de texto). */
+  --text-hero: 3.25rem;
+  --text-hero--line-height: 1.02;
+  --text-display: 1.75rem;
+  --text-display--line-height: 1.15;
+  --text-data-lg: 1.375rem;
+  --text-data-lg--line-height: 1.2;
+
+  /* Elemento distintivo: barrido de escaneo sobre la fotografía en análisis */
+  --animate-scan-sweep: scan-sweep 2.4s ease-in-out infinite;
+}
+
+@keyframes scan-sweep {
+  0% {
+    transform: translateY(-110%);
+    opacity: 0;
+  }
+  12% {
+    opacity: 1;
+  }
+  88% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(110%);
+    opacity: 0;
+  }
+}
+
 html,
 body {
   height: 100%;
@@ -7,15 +59,37 @@ body {
 
 body {
   margin: 0;
-  font-family:
-    "Inter",
-    -apple-system,
-    BlinkMacSystemFont,
-    "Segoe UI",
-    Roboto,
-    Helvetica,
-    Arial,
-    sans-serif;
-  background-color: #f4f6fb;
-  color: #1f2937;
+  font-family: var(--font-sans);
+  background-color: var(--color-spec-paper);
+  color: var(--color-asphalt);
+}
+
+/* Fondo de las pantallas de acceso (login/registro): "showroom" oscuro con
+   un resplandor sutil en ámbar y verdigris — la misma paleta, en otra
+   proporción, para separar el umbral de entrada del taller de trabajo claro. */
+.auth-backdrop {
+  background-color: var(--color-asphalt);
+  background-image:
+    radial-gradient(circle at 18% 20%, color-mix(in srgb, var(--color-signal-amber) 22%, transparent), transparent 55%),
+    radial-gradient(circle at 82% 78%, color-mix(in srgb, var(--color-verdigris) 20%, transparent), transparent 55%);
+}
+
+/* Foco de teclado visible y consistente en toda la app, sin depender de
+   que cada elemento lleve una clase focus-visible: aparte. */
+:focus-visible {
+  outline: 2px solid var(--color-signal-amber);
+  outline-offset: 2px;
+}
+
+/* prefers-reduced-motion: se respeta globalmente, incluida la animación
+   del elemento distintivo. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

@@ -51,10 +51,15 @@ export class Assistant {
   readonly sending = signal(false);
   /** Texto del último evento "estado" recibido; se muestra mientras no ha empezado el streaming de texto. */
   readonly progressText = signal<string | null>(null);
+  /** Cronómetro de respaldo: no depende del backend, sostiene la espera de un arranque en frío largo. */
+  readonly elapsedSeconds = signal(0);
+  /** Índice del mensaje de usuario cuya foto se está analizando (activa el barrido de escaneo). */
+  readonly analyzingUserMessageIndex = signal<number | null>(null);
   readonly errorMessage = signal<string | null>(null);
   private lastFailedSend: PendingSend | null = null;
 
   private readonly blobUrls = new Set<string>();
+  private elapsedTimer?: ReturnType<typeof setInterval>;
 
   // Estado transitorio del turno en curso (se resetea en cada dispatch()).
   private turnPrefiltro: AssistantPrefilter | null = null;
@@ -110,7 +115,15 @@ export class Assistant {
       imageBase64 = await fileToBase64(imageFile);
     }
 
-    this.messages.update((msgs) => [...msgs, { role: 'user', text: mensaje, imageUrl: imagePreviewUrl }]);
+    let userMessageIndex = -1;
+    this.messages.update((msgs) => {
+      const next = [...msgs, { role: 'user' as const, text: mensaje, imageUrl: imagePreviewUrl }];
+      userMessageIndex = next.length - 1;
+      return next;
+    });
+    if (imageBase64) {
+      this.analyzingUserMessageIndex.set(userMessageIndex);
+    }
 
     // El blob URL de la vista previa pasa a pertenecer al mensaje recién
     // agregado: se limpia el composer pero NO se revoca aquí.
@@ -130,7 +143,8 @@ export class Assistant {
   private dispatch(pending: PendingSend): void {
     this.errorMessage.set(null);
     this.sending.set(true);
-    this.progressText.set('Pensando...');
+    this.progressText.set(pending.imageBase64 ? 'Conectando con el motor de análisis...' : 'Pensando...');
+    this.startElapsedTimer();
 
     this.turnPrefiltro = null;
     this.turnClasificacion = null;
@@ -144,6 +158,8 @@ export class Assistant {
         error: (error: unknown) => {
           this.sending.set(false);
           this.progressText.set(null);
+          this.stopElapsedTimer();
+          this.analyzingUserMessageIndex.set(null);
           this.finishStreamingMessage();
           this.lastFailedSend = pending;
           this.errorMessage.set(
@@ -196,6 +212,8 @@ export class Assistant {
         this.lastFailedSend = null;
         this.sending.set(false);
         this.progressText.set(null);
+        this.stopElapsedTimer();
+        this.analyzingUserMessageIndex.set(null);
         this.streamingMessageIndex = null;
         break;
 
@@ -203,6 +221,8 @@ export class Assistant {
         this.finishStreamingMessage();
         this.sending.set(false);
         this.progressText.set(null);
+        this.stopElapsedTimer();
+        this.analyzingUserMessageIndex.set(null);
         this.lastFailedSend = pending;
         this.errorMessage.set(event.mensaje);
         break;
@@ -215,6 +235,7 @@ export class Assistant {
       return;
     }
     this.progressText.set(null);
+    this.analyzingUserMessageIndex.set(null);
     this.messages.update((msgs) => {
       const next: ChatMessage[] = [
         ...msgs,
@@ -264,7 +285,49 @@ export class Assistant {
     return url;
   }
 
+  private startElapsedTimer(): void {
+    this.elapsedSeconds.set(0);
+    this.elapsedTimer = setInterval(() => this.elapsedSeconds.update((s) => s + 1), 1000);
+  }
+
+  private stopElapsedTimer(): void {
+    if (this.elapsedTimer !== undefined) {
+      clearInterval(this.elapsedTimer);
+      this.elapsedTimer = undefined;
+    }
+  }
+
+  /**
+   * Estado del análisis de un turno del asistente, en un único lugar para que
+   * el acento del borde y el panel de detalle nunca queden desincronizados.
+   */
+  cardAccent(
+    message: ChatMessage,
+  ): 'none' | 'verified' | 'out-of-scope' | 'disabled' | 'classifier-error' | 'no-result' {
+    if (!message.prefiltro) return 'none';
+    if (!message.prefiltro.dentro_de_alcance) return 'out-of-scope';
+    if (!message.classifierWasEnabled) return 'disabled';
+    if (message.clasificacion?.error) return 'classifier-error';
+    if (message.clasificacion?.alternativas?.length) return 'verified';
+    return 'no-result';
+  }
+
+  /** Banda de confianza: define color y calificación de cada predicción de un vistazo. */
+  confidenceBand(value: number): 'high' | 'medium' | 'low' {
+    if (value >= 0.85) return 'high';
+    if (value >= 0.5) return 'medium';
+    return 'low';
+  }
+
+  confidenceLabel(value: number): string {
+    const band = this.confidenceBand(value);
+    if (band === 'high') return 'Confianza alta';
+    if (band === 'medium') return 'Confianza media';
+    return 'Confianza baja';
+  }
+
   resetConversation(): void {
+    this.stopElapsedTimer();
     for (const url of this.blobUrls) {
       URL.revokeObjectURL(url);
     }
@@ -277,6 +340,7 @@ export class Assistant {
     this.selectedImagePreview.set(null);
     this.errorMessage.set(null);
     this.progressText.set(null);
+    this.analyzingUserMessageIndex.set(null);
     this.lastFailedSend = null;
     this.sending.set(false);
     this.streamingMessageIndex = null;
