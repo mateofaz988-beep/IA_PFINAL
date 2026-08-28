@@ -1,5 +1,6 @@
 import { DecimalPipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { AssistantService } from '../../../core/services/assistant.service';
 import {
   AssistantClassification,
@@ -29,7 +30,7 @@ interface PendingSend {
 @Component({
   selector: 'app-assistant',
   standalone: true,
-  imports: [DecimalPipe],
+  imports: [DecimalPipe, RouterLink],
   templateUrl: './assistant.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

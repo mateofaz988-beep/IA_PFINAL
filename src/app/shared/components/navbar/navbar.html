@@ -1,11 +1,34 @@
 <nav class="border-b border-steel/25 bg-spec-paper">
-  <div class="mx-auto max-w-5xl px-4 sm:px-6 py-3 flex items-center justify-between">
-    <a routerLink="/dashboard" class="flex items-baseline gap-2.5">
-      <span class="font-display text-2xl font-bold tracking-tight text-asphalt">AUTOSCAN</span>
-      <span class="hidden sm:inline font-data text-[0.6875rem] uppercase tracking-[0.15em] text-steel">
-        Peritaje visual
-      </span>
-    </a>
+  <div class="mx-auto max-w-5xl px-4 sm:px-6 py-3 flex items-center justify-between gap-4">
+    <div class="flex items-center gap-6">
+      <a routerLink="/dashboard" class="flex items-center gap-2.5">
+        <img src="logo.png" alt="" class="h-6 w-auto sm:h-7" />
+        <span class="flex items-baseline gap-2.5">
+          <span class="font-display text-2xl font-bold tracking-tight text-asphalt">AUTOSCAN</span>
+          <span class="hidden sm:inline font-data text-[0.6875rem] uppercase tracking-[0.15em] text-steel">
+            Peritaje visual
+          </span>
+        </span>
+      </a>
+
+      <div class="hidden md:flex items-center gap-2 font-data text-xs uppercase tracking-wider">
+        <a
+          routerLink="/dashboard"
+          routerLinkActive="border-signal-amber bg-signal-amber/10 text-asphalt"
+          [routerLinkActiveOptions]="{ exact: true }"
+          class="rounded-sm border border-transparent px-3 py-1.5 text-steel transition-colors hover:border-steel/40 hover:text-asphalt"
+        >
+          Inicio
+        </a>
+        <a
+          routerLink="/dashboard/asistente"
+          routerLinkActive="border-signal-amber bg-signal-amber/10 text-asphalt"
+          class="rounded-sm border border-transparent px-3 py-1.5 text-steel transition-colors hover:border-steel/40 hover:text-asphalt"
+        >
+          Asistente
+        </a>
+      </div>
+    </div>
 
     @if (currentUser(); as user) {
       <div class="flex items-center gap-3 sm:gap-4">
