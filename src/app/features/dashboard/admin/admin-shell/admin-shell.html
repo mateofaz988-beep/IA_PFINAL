@@ -1,0 +1,49 @@
+<div class="mx-auto max-w-5xl px-4 sm:px-6 pt-6">
+  <p class="font-data text-xs uppercase tracking-[0.2em] text-steel">Administración</p>
+  <nav class="mt-3 flex flex-wrap gap-2 border-b border-steel/20 pb-3 font-data text-xs uppercase tracking-wider">
+    <a
+      routerLink="areas"
+      routerLinkActive="border-signal-amber bg-signal-amber/10 text-asphalt"
+      class="rounded-sm border border-transparent px-3 py-1.5 text-steel transition-colors hover:border-steel/40 hover:text-asphalt"
+    >
+      Áreas
+    </a>
+    <a
+      routerLink="modulos"
+      routerLinkActive="border-signal-amber bg-signal-amber/10 text-asphalt"
+      class="rounded-sm border border-transparent px-3 py-1.5 text-steel transition-colors hover:border-steel/40 hover:text-asphalt"
+    >
+      Módulos
+    </a>
+    <a
+      routerLink="usuarios"
+      routerLinkActive="border-signal-amber bg-signal-amber/10 text-asphalt"
+      class="rounded-sm border border-transparent px-3 py-1.5 text-steel transition-colors hover:border-steel/40 hover:text-asphalt"
+    >
+      Usuarios
+    </a>
+    <a
+      routerLink="turnos"
+      routerLinkActive="border-signal-amber bg-signal-amber/10 text-asphalt"
+      class="rounded-sm border border-transparent px-3 py-1.5 text-steel transition-colors hover:border-steel/40 hover:text-asphalt"
+    >
+      Turnos
+    </a>
+    <a
+      routerLink="estadisticas"
+      routerLinkActive="border-signal-amber bg-signal-amber/10 text-asphalt"
+      class="rounded-sm border border-transparent px-3 py-1.5 text-steel transition-colors hover:border-steel/40 hover:text-asphalt"
+    >
+      Estadísticas
+    </a>
+    <a
+      routerLink="sembrar"
+      routerLinkActive="border-signal-amber bg-signal-amber/10 text-asphalt"
+      class="rounded-sm border border-transparent px-3 py-1.5 text-steel transition-colors hover:border-steel/40 hover:text-asphalt"
+    >
+      Sembrar datos
+    </a>
+  </nav>
+</div>
+
+<router-outlet />

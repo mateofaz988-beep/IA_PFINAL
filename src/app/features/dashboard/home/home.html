@@ -2,71 +2,104 @@
 <section class="mx-auto max-w-5xl px-4 sm:px-6 pt-10 pb-14 sm:pt-16 sm:pb-20">
   <div class="grid gap-10 lg:grid-cols-[1.1fr_0.9fr] lg:items-center lg:gap-14">
     <div>
-      <p class="font-data text-xs uppercase tracking-[0.2em] text-steel">Peritaje visual · Quito</p>
+      <p class="font-data text-xs uppercase tracking-[0.2em] text-steel">AutoScan Motors · Quito</p>
 
-      <h1 class="mt-4 font-display text-4xl sm:text-hero font-bold tracking-tight text-asphalt">
-        Identifica un vehículo a partir de una fotografía.
-      </h1>
-
-      <p class="mt-5 max-w-xl text-lg leading-relaxed text-asphalt/90">
-        AutoScan es un servicio de peritaje e identificación vehicular en Quito. A partir de una fotografía
-        estima marca, modelo y año con una red neuronal propia, entrenada para este fin. Lo usan compradores
-        de autos usados, aseguradoras y talleres que necesitan una identificación rápida antes de decidir.
-      </p>
-
-      <div class="mt-8 flex flex-wrap items-center gap-4">
-        <a
-          routerLink="/dashboard/asistente"
-          class="inline-flex items-center gap-2 rounded-sm bg-asphalt px-6 py-3 text-base font-medium text-spec-paper transition-colors hover:bg-signal-amber hover:text-asphalt"
-        >
-          Abrir el asistente
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="1.75"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            class="h-4 w-4"
-            aria-hidden="true"
-          >
-            <path d="M4 12h15" />
-            <path d="M13 6l6 6-6 6" />
-          </svg>
-        </a>
-        <span class="font-data text-xs text-steel">Ya iniciaste sesión — abre directo, sin pasos adicionales.</span>
-      </div>
+      @switch (rol()) {
+        @case ('asesor') {
+          <h1 class="mt-4 font-display text-4xl sm:text-hero font-bold tracking-tight text-asphalt">
+            Tu cola de atención, en un solo lugar.
+          </h1>
+          <p class="mt-5 max-w-xl text-lg leading-relaxed text-asphalt/90">
+            El siguiente turno de tu módulo, con los datos del vehículo ya identificados cuando corresponde —
+            sin haberlo visto todavía.
+          </p>
+          <div class="mt-8">
+            <a
+              routerLink="/dashboard/asesor"
+              class="inline-flex items-center gap-2 rounded-sm bg-asphalt px-6 py-3 text-base font-medium text-spec-paper transition-colors hover:bg-signal-amber hover:text-asphalt"
+            >
+              Abrir mi panel
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4" aria-hidden="true">
+                <path d="M4 12h15" />
+                <path d="M13 6l6 6-6 6" />
+              </svg>
+            </a>
+          </div>
+        }
+        @case ('administrador') {
+          <h1 class="mt-4 font-display text-4xl sm:text-hero font-bold tracking-tight text-asphalt">
+            Panel del concesionario.
+          </h1>
+          <p class="mt-5 max-w-xl text-lg leading-relaxed text-asphalt/90">
+            Áreas, módulos, usuarios y el historial completo de turnos — con las estadísticas reales de cuánto se
+            cumple lo que le prometemos al cliente.
+          </p>
+          <div class="mt-8 flex flex-wrap gap-3">
+            <a
+              routerLink="/dashboard/admin"
+              class="inline-flex items-center gap-2 rounded-sm bg-asphalt px-6 py-3 text-base font-medium text-spec-paper transition-colors hover:bg-signal-amber hover:text-asphalt"
+            >
+              Administración
+            </a>
+            <a
+              routerLink="/dashboard/admin/estadisticas"
+              class="inline-flex items-center gap-2 rounded-sm border border-steel/40 px-6 py-3 text-base font-medium text-asphalt transition-colors hover:border-asphalt"
+            >
+              Estadísticas
+            </a>
+            <a
+              href="/sala"
+              target="_blank"
+              rel="noopener"
+              class="inline-flex items-center gap-2 rounded-sm border border-steel/40 px-6 py-3 text-base font-medium text-asphalt transition-colors hover:border-asphalt"
+            >
+              Pantalla de sala
+            </a>
+          </div>
+        }
+        @default {
+          <h1 class="mt-4 font-display text-4xl sm:text-hero font-bold tracking-tight text-asphalt">
+            Pide tu turno sin salir de casa.
+          </h1>
+          <p class="mt-5 max-w-xl text-lg leading-relaxed text-asphalt/90">
+            Elige qué necesitas — venta, avalúo, financiamiento, taller o entrega — y te damos un código y una
+            hora aproximada de llegada. Esperas en casa, no en el concesionario.
+          </p>
+          <div class="mt-8 flex flex-wrap items-center gap-4">
+            <a
+              routerLink="/dashboard/turnos/solicitar"
+              class="inline-flex items-center gap-2 rounded-sm bg-asphalt px-6 py-3 text-base font-medium text-spec-paper transition-colors hover:bg-signal-amber hover:text-asphalt"
+            >
+              Pedir turno
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4" aria-hidden="true">
+                <path d="M4 12h15" />
+                <path d="M13 6l6 6-6 6" />
+              </svg>
+            </a>
+            <a
+              routerLink="/dashboard/turnos/historial"
+              class="font-data text-xs uppercase tracking-wider text-steel underline decoration-steel/40 underline-offset-4 hover:text-asphalt"
+            >
+              Ver mis turnos
+            </a>
+          </div>
+        }
+      }
     </div>
 
-    <!-- Elemento distintivo: barrido de escaneo, usado una única vez en la página -->
+    <!-- Elemento distintivo: barrido de escaneo -->
     <div class="rounded-sm border border-steel/25 bg-white/50 p-5 sm:p-6">
       <div class="relative overflow-hidden rounded-sm bg-spec-paper">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 420 200"
-          class="w-full h-auto"
-          role="img"
-          aria-label="Diagrama esquemático de un vehículo en vista lateral, usado como ilustración del análisis de AutoScan"
-        >
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 200" class="w-full h-auto" role="img" aria-label="Diagrama esquemático de un vehículo en vista lateral">
           <line x1="10" y1="174" x2="410" y2="174" stroke="var(--color-steel)" stroke-width="1" stroke-dasharray="3 4" opacity="0.6" />
-          <path
-            d="M30,150 L30,128 C30,120 36,114 44,112 L96,100 C104,80 122,64 148,58 L154,54 L266,54 L272,58 C298,64 316,80 324,100 L376,112 C384,114 390,120 390,128 L390,150 L358,150 C358,150 358,134 342,134 C326,134 326,150 326,150 L94,150 C94,150 94,134 78,134 C62,134 62,150 62,150 Z"
-            fill="none"
-            stroke="var(--color-asphalt)"
-            stroke-width="2"
-            stroke-linejoin="round"
-          />
+          <path d="M30,150 L30,128 C30,120 36,114 44,112 L96,100 C104,80 122,64 148,58 L154,54 L266,54 L272,58 C298,64 316,80 324,100 L376,112 C384,114 390,120 390,128 L390,150 L358,150 C358,150 358,134 342,134 C326,134 326,150 326,150 L94,150 C94,150 94,134 78,134 C62,134 62,150 62,150 Z" fill="none" stroke="var(--color-asphalt)" stroke-width="2" stroke-linejoin="round" />
           <path d="M154,54 L162,100 M266,54 L258,100 M96,100 L324,100 M210,100 L210,150" fill="none" stroke="var(--color-steel)" stroke-width="1.25" />
           <circle cx="78" cy="150" r="20" fill="none" stroke="var(--color-asphalt)" stroke-width="2" />
           <circle cx="78" cy="150" r="7" fill="none" stroke="var(--color-steel)" stroke-width="1.25" />
           <circle cx="342" cy="150" r="20" fill="none" stroke="var(--color-asphalt)" stroke-width="2" />
           <circle cx="342" cy="150" r="7" fill="none" stroke="var(--color-steel)" stroke-width="1.25" />
         </svg>
-        <div
-          class="pointer-events-none absolute inset-x-0 h-14 animate-scan-sweep bg-gradient-to-b from-signal-amber/0 via-signal-amber/60 to-signal-amber/0"
-          aria-hidden="true"
-        ></div>
+        <div class="pointer-events-none absolute inset-x-0 h-14 animate-scan-sweep bg-gradient-to-b from-signal-amber/0 via-signal-amber/60 to-signal-amber/0" aria-hidden="true"></div>
       </div>
       <p class="mt-3 font-data text-[0.6875rem] uppercase tracking-wider text-steel">
         Vista esquemática — no es una fotografía del producto.
@@ -75,325 +108,96 @@
   </div>
 </section>
 
-<!-- ==================== Cómo funciona: flujo de dos etapas ==================== -->
+<!-- ==================== Cómo funciona ==================== -->
 <section class="border-t border-steel/20 bg-white/40">
   <div class="mx-auto max-w-5xl px-4 sm:px-6 py-14 sm:py-20">
     <p class="font-data text-xs uppercase tracking-[0.2em] text-steel">Cómo funciona</p>
     <h2 class="mt-3 font-display text-3xl sm:text-display font-bold tracking-tight text-asphalt">
-      Dos etapas, no una.
+      Tres pasos, sin sala de espera.
     </h2>
-    <p class="mt-4 max-w-2xl text-base leading-relaxed text-asphalt/90">
-      La primera decide si vale la pena intentar una identificación. La segunda la hace. Separarlas es lo que
-      permite que el sistema reconozca sus propios límites en lugar de forzar una respuesta.
-    </p>
 
-    <ol class="relative mt-12 border-l-2 border-steel/25 pl-8 sm:pl-10">
-      <!-- Paso 0: fotografía -->
-      <li class="relative pb-10">
-        <span
-          class="absolute -left-[calc(2rem+1px)] top-0 flex h-8 w-8 -translate-x-1/2 items-center justify-center rounded-full border-2 border-steel/40 bg-spec-paper font-data text-xs text-steel sm:-left-[calc(2.5rem+1px)]"
-        >01</span>
-        <div class="flex items-start gap-3">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="mt-0.5 h-6 w-6 shrink-0 text-steel" aria-hidden="true">
-            <path d="M4 8h3l1.5-2h7L17 8h3a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1Z" />
-            <circle cx="12" cy="13" r="3.5" />
-          </svg>
-          <div>
-            <h3 class="font-medium text-asphalt">Fotografía</h3>
-            <p class="mt-1 max-w-xl text-sm text-asphalt/80">
-              El usuario sube una fotografía del vehículo al asistente. No hace falta ningún dato adicional.
-            </p>
-          </div>
-        </div>
+    <ol class="relative mt-12 grid gap-8 border-l-2 border-steel/25 pl-8 sm:grid-cols-3 sm:gap-6 sm:border-l-0 sm:pl-0">
+      <li class="relative sm:border-l-2 sm:border-steel/25 sm:pl-6">
+        <span class="absolute -left-[calc(2rem+1px)] top-0 flex h-8 w-8 -translate-x-1/2 items-center justify-center rounded-full border-2 border-steel/40 bg-spec-paper font-data text-xs text-steel sm:static sm:mb-3 sm:h-8 sm:w-8 sm:translate-x-0">01</span>
+        <h3 class="font-medium text-asphalt">Eliges el área</h3>
+        <p class="mt-1 text-sm text-asphalt/80">
+          Venta, avalúo, financiamiento, taller o entrega. Si es avalúo, fotografías tu vehículo — la IA lo
+          identifica ahí mismo.
+        </p>
       </li>
-
-      <!-- Paso 1: prefiltro -->
-      <li class="relative pb-6">
-        <span
-          class="absolute -left-[calc(2rem+1px)] top-0 flex h-8 w-8 -translate-x-1/2 items-center justify-center rounded-full border-2 border-steel/40 bg-spec-paper font-data text-xs text-steel sm:-left-[calc(2.5rem+1px)]"
-        >02</span>
-        <div class="flex items-start gap-3">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="mt-0.5 h-6 w-6 shrink-0 text-steel" aria-hidden="true">
-            <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z" />
-            <circle cx="12" cy="12" r="3" />
-          </svg>
-          <div>
-            <h3 class="font-medium text-asphalt">Prefiltro de alcance</h3>
-            <p class="mt-1 max-w-xl text-sm text-asphalt/80">
-              Un modelo de visión mira la fotografía antes que nada y estima si el vehículo cae dentro del
-              catálogo: año aproximado y si el tipo de carrocería corresponde al mercado que el sistema conoce.
-            </p>
-          </div>
-        </div>
+      <li class="relative sm:border-l-2 sm:border-steel/25 sm:pl-6">
+        <span class="absolute -left-[calc(2rem+1px)] top-0 flex h-8 w-8 -translate-x-1/2 items-center justify-center rounded-full border-2 border-steel/40 bg-spec-paper font-data text-xs text-steel sm:static sm:mb-3 sm:h-8 sm:w-8 sm:translate-x-0">02</span>
+        <h3 class="font-medium text-asphalt">Recibes un rango de hora</h3>
+        <p class="mt-1 text-sm text-asphalt/80">
+          Calculado con la cola real de ese momento, no un número fijo. Se ajusta solo si la fila cambia.
+        </p>
       </li>
-
-      <!-- Rama: fuera de alcance -->
-      <li class="relative mb-8 ml-2 max-w-lg border-l-2 border-dashed border-rust/50 pl-5 sm:ml-4">
-        <p class="font-data text-[0.6875rem] uppercase tracking-wider text-rust">Si no entra en el catálogo</p>
-        <div class="mt-2 flex items-start gap-2.5">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" class="mt-0.5 h-4 w-4 shrink-0 text-rust" aria-hidden="true">
-            <path d="M9 4v16" stroke-dasharray="2 2.5" />
-            <path d="M13 8l6 4-6 4" />
-          </svg>
-          <p class="text-sm text-asphalt/80">
-            El proceso se detiene ahí. El asistente lo dice de frente en vez de arriesgar una identificación
-            sobre un vehículo que no está en su catálogo.
-          </p>
-        </div>
-      </li>
-
-      <!-- Paso 2: clasificador -->
-      <li class="relative pb-10">
-        <span
-          class="absolute -left-[calc(2rem+1px)] top-0 flex h-8 w-8 -translate-x-1/2 items-center justify-center rounded-full border-2 border-verdigris/50 bg-spec-paper font-data text-xs text-verdigris sm:-left-[calc(2.5rem+1px)]"
-        >03</span>
-        <p class="mb-2 font-data text-[0.6875rem] uppercase tracking-wider text-verdigris">Si entra en el catálogo</p>
-        <div class="flex items-start gap-3">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" class="mt-0.5 h-6 w-6 shrink-0 text-verdigris" aria-hidden="true">
-            <circle cx="12" cy="12" r="7" />
-            <circle cx="12" cy="12" r="1.4" fill="currentColor" stroke="none" />
-            <path d="M12 2v3M12 19v3M2 12h3M19 12h3" />
-          </svg>
-          <div>
-            <h3 class="font-medium text-asphalt">Clasificador EfficientNetB0</h3>
-            <p class="mt-1 max-w-xl text-sm text-asphalt/80">
-              Recién aquí entra la red que identifica el vehículo: una EfficientNetB0 entrenada con
-              <span class="font-data">16.185</span> imágenes de <span class="font-data">196</span> modelos.
-              Devuelve una predicción y las alternativas más cercanas, cada una con su nivel de confianza.
-            </p>
-          </div>
-        </div>
-      </li>
-
-      <!-- Paso 3: redacción -->
-      <li class="relative">
-        <span
-          class="absolute -left-[calc(2rem+1px)] top-0 flex h-8 w-8 -translate-x-1/2 items-center justify-center rounded-full border-2 border-steel/40 bg-spec-paper font-data text-xs text-steel sm:-left-[calc(2.5rem+1px)]"
-        >04</span>
-        <div class="flex items-start gap-3">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="mt-0.5 h-6 w-6 shrink-0 text-steel" aria-hidden="true">
-            <path d="M4 5h16a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H9l-5 4V6a1 1 0 0 1 1-1Z" />
-            <path d="M8 9h8M8 12.5h5" />
-          </svg>
-          <div>
-            <h3 class="font-medium text-asphalt">Redacción del asistente</h3>
-            <p class="mt-1 max-w-xl text-sm text-asphalt/80">
-              El asistente convierte el resultado en una respuesta legible y muestra la ficha con las
-              alternativas y su nivel de confianza, tal como se ve en el chat.
-            </p>
-          </div>
-        </div>
+      <li class="relative sm:pl-6">
+        <span class="absolute -left-[calc(2rem+1px)] top-0 flex h-8 w-8 -translate-x-1/2 items-center justify-center rounded-full border-2 border-verdigris/50 bg-spec-paper font-data text-xs text-verdigris sm:static sm:mb-3 sm:h-8 sm:w-8 sm:translate-x-0">03</span>
+        <h3 class="font-medium text-asphalt">Te llamamos</h3>
+        <p class="mt-1 text-sm text-asphalt/80">
+          Llegas en tu rango, te atendemos en tu módulo. Puedes cancelar en cualquier momento antes de eso.
+        </p>
       </li>
     </ol>
   </div>
 </section>
 
-<!-- ==================== Cifras ==================== -->
+<!-- ==================== Áreas de atención ==================== -->
 <section class="border-t border-steel/20">
   <div class="mx-auto max-w-5xl px-4 sm:px-6 py-14 sm:py-20">
-    <p class="font-data text-xs uppercase tracking-[0.2em] text-steel">En cifras</p>
+    <p class="font-data text-xs uppercase tracking-[0.2em] text-steel">Áreas de atención</p>
     <h2 class="mt-3 font-display text-3xl sm:text-display font-bold tracking-tight text-asphalt">
-      Lo que el sistema sabe y hasta dónde llega.
+      Qué puedes resolver hoy.
     </h2>
 
-    <dl class="mt-10 grid grid-cols-2 gap-px overflow-hidden rounded-sm border border-steel/25 bg-steel/25 sm:grid-cols-4">
-      <div class="bg-spec-paper px-5 py-6">
-        <dd class="font-data text-4xl sm:text-5xl font-medium tabular-nums text-asphalt">196</dd>
-        <dt class="mt-2 text-sm text-steel">Modelos reconocidos, de 49 marcas</dt>
-      </div>
-      <div class="bg-spec-paper px-5 py-6">
-        <dd class="font-data text-4xl sm:text-5xl font-medium tabular-nums text-asphalt">16.185</dd>
-        <dt class="mt-2 text-sm text-steel">Imágenes de entrenamiento</dt>
-      </div>
-      <div class="bg-spec-paper px-5 py-6">
-        <dd class="font-data text-4xl sm:text-5xl font-medium tabular-nums text-asphalt">
-          68<span class="text-2xl sm:text-3xl">%</span>
-        </dd>
-        <dt class="mt-2 text-sm text-steel">Acierto en primera opción — 90% entre las cinco primeras</dt>
-      </div>
-      <div class="bg-spec-paper px-5 py-6">
-        <dd class="font-data text-4xl sm:text-5xl font-medium tabular-nums text-asphalt">2012</dd>
-        <dt class="mt-2 text-sm text-steel">Límite superior de cobertura, mercado estadounidense</dt>
-      </div>
-    </dl>
-  </div>
-</section>
-
-<!-- ==================== Muestra del catálogo ==================== -->
-<section class="border-t border-steel/20">
-  <div class="mx-auto max-w-5xl px-4 sm:px-6 py-14 sm:py-20">
-    <p class="font-data text-xs uppercase tracking-[0.2em] text-steel">Diversidad del catálogo</p>
-    <h2 class="mt-3 font-display text-3xl sm:text-display font-bold tracking-tight text-asphalt">
-      196 modelos no significa un solo tipo de auto.
-    </h2>
-    <p class="mt-4 max-w-2xl text-base leading-relaxed text-asphalt/90">
-      Sedanes, deportivos, todoterrenos, pickups, minivans. Una muestra de las carrocerías dentro del
-      catálogo — no el listado completo de los 196 modelos.
-    </p>
-
-    <ul class="mt-10 grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-5">
-      @for (item of catalogSample; track item.file) {
-        <li class="group overflow-hidden rounded-sm border border-steel/25 bg-spec-paper">
-          <div class="aspect-[4/3] overflow-hidden bg-steel/10">
-            <img
-              [src]="'catalogo/' + item.file"
-              [alt]="item.model + ', ' + item.body"
-              loading="lazy"
-              class="h-full w-full object-cover grayscale contrast-125 transition-[filter] duration-500 group-hover:grayscale-0"
-            />
+    <ul class="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+      @for (area of areasActivas(); track area.id) {
+        <li class="rounded-sm border border-steel/25 bg-spec-paper px-4 py-3.5">
+          <div class="flex items-start justify-between gap-3">
+            <p class="text-sm font-medium text-asphalt">{{ area.nombre }}</p>
+            <span class="shrink-0 rounded-sm border border-steel/30 px-2 py-0.5 font-data text-[0.6875rem] uppercase tracking-wider text-steel">{{ area.prefijo }}</span>
           </div>
-          <div class="px-2.5 py-2">
-            <p class="truncate text-xs font-medium text-asphalt">{{ item.model }}</p>
-            <p class="font-data text-[0.625rem] uppercase tracking-wider text-steel">{{ item.body }}</p>
-          </div>
+          <p class="mt-1.5 text-xs text-asphalt/75">{{ area.descripcion }}</p>
         </li>
+      } @empty {
+        <li class="col-span-full text-sm text-steel">Todavía no hay áreas activas.</li>
       }
     </ul>
   </div>
 </section>
 
-<!-- ==================== Límites ==================== -->
+<!-- ==================== La IA en el avalúo ==================== -->
 <section class="border-t border-steel/20 bg-white/40">
   <div class="mx-auto max-w-5xl px-4 sm:px-6 py-14 sm:py-20">
-    <p class="font-data text-xs uppercase tracking-[0.2em] text-rust">Límites</p>
-    <h2 class="mt-3 font-display text-3xl sm:text-display font-bold tracking-tight text-asphalt">
-      Lo que el sistema no hace.
-    </h2>
-    <p class="mt-4 max-w-2xl text-base leading-relaxed text-asphalt/90">
-      Decirlo aquí es mejor que dejar que el usuario se lleve la sorpresa después de subir la fotografía.
-    </p>
-
-    <div class="mt-8 grid gap-4 sm:grid-cols-2">
-      <div class="rounded-sm border border-steel/25 border-l-4 border-l-rust border-dashed bg-spec-paper p-5">
-        <p class="font-data text-[0.6875rem] uppercase tracking-wider text-rust">Vehículos posteriores a 2012</p>
-        <p class="mt-2 text-sm text-asphalt/85">
-          El catálogo de entrenamiento cubre modelos hasta ese año. Un vehículo más reciente no tiene con qué
-          compararse, así que el asistente no va a inventar una coincidencia.
-        </p>
-      </div>
-      <div class="rounded-sm border border-steel/25 border-l-4 border-l-rust border-dashed bg-spec-paper p-5">
-        <p class="font-data text-[0.6875rem] uppercase tracking-wider text-rust">Modelos fuera del mercado estadounidense</p>
-        <p class="mt-2 text-sm text-asphalt/85">
-          El catálogo se construyó sobre el mercado de Estados Unidos. Un Chevrolet Aveo, muy común en Ecuador,
-          queda fuera por esa razón — no porque el sistema haya fallado al reconocerlo.
-        </p>
-      </div>
-    </div>
-
-    <p class="mt-6 max-w-2xl text-sm text-steel">
-      Ante estos casos el prefiltro de la primera etapa lo advierte antes de intentar nada. Es el mismo mensaje
-      que vas a ver en el chat si sube una fotografía fuera de catálogo.
-    </p>
-  </div>
-</section>
-
-<!-- ==================== Qué puede hacer el asistente ==================== -->
-<section class="border-t border-steel/20">
-  <div class="mx-auto max-w-5xl px-4 sm:px-6 py-14 sm:py-20">
-    <div class="grid gap-10 lg:grid-cols-[1fr_0.85fr] lg:gap-14">
+    <div class="grid gap-10 lg:grid-cols-[1.05fr_0.95fr] lg:gap-14">
       <div>
-        <p class="font-data text-xs uppercase tracking-[0.2em] text-steel">El asistente</p>
+        <p class="font-data text-xs uppercase tracking-[0.2em] text-steel">El diferenciador</p>
         <h2 class="mt-3 font-display text-3xl sm:text-display font-bold tracking-tight text-asphalt">
-          Qué puede hacer.
+          Si vienes a un avalúo, identificamos tu auto antes de que lo veamos.
         </h2>
-
-        <ul class="mt-6 space-y-4">
-          <li class="flex items-start gap-3">
-            <span class="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-signal-amber" aria-hidden="true"></span>
-            <p class="text-sm text-asphalt/90">Identificar un vehículo a partir de una fotografía.</p>
-          </li>
-          <li class="flex items-start gap-3">
-            <span class="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-signal-amber" aria-hidden="true"></span>
-            <p class="text-sm text-asphalt/90">Consultar qué modelos están dentro del catálogo.</p>
-          </li>
-          <li class="flex items-start gap-3">
-            <span class="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-signal-amber" aria-hidden="true"></span>
-            <p class="text-sm text-asphalt/90">Responder sobre especificaciones técnicas del modelo identificado.</p>
-          </li>
-          <li class="flex items-start gap-3">
-            <span class="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-signal-amber" aria-hidden="true"></span>
-            <p class="text-sm text-asphalt/90">Leer sus respuestas en voz alta.</p>
-          </li>
-        </ul>
-      </div>
-
-      <div class="rounded-sm border border-steel/25 bg-white/50 p-5 sm:p-6">
-        <p class="font-data text-[0.6875rem] uppercase tracking-wider text-steel">Dos controles, siempre visibles</p>
-        <div class="mt-4 space-y-3">
-          <div class="flex items-center gap-2 rounded-sm border border-verdigris/40 bg-verdigris/10 px-3 py-2.5 text-sm font-medium text-verdigris">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4" aria-hidden="true">
-              <circle cx="12" cy="12" r="7" />
-              <circle cx="12" cy="12" r="1.4" fill="currentColor" stroke="none" />
-              <path d="M12 2v3M12 19v3M2 12h3M19 12h3" />
-            </svg>
-            Clasificador de imágenes
-            <span class="ml-auto font-data text-[0.625rem] uppercase tracking-wider opacity-70">On</span>
-          </div>
-          <div class="flex items-center gap-2 rounded-sm border border-steel/30 bg-white/40 px-3 py-2.5 text-sm font-medium text-steel">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4" aria-hidden="true">
-              <rect x="9" y="3" width="6" height="11" rx="3" />
-              <path d="M5 11a7 7 0 0 0 14 0" />
-              <path d="M12 18v3" />
-            </svg>
-            Respuesta por voz
-            <span class="ml-auto font-data text-[0.625rem] uppercase tracking-wider opacity-70">Off</span>
-          </div>
-        </div>
-        <p class="mt-4 text-sm text-asphalt/80">
-          Se activan o desactivan en cualquier momento desde el chat, antes de subir la fotografía o durante la
-          conversación.
+        <p class="mt-4 max-w-xl text-base leading-relaxed text-asphalt/90">
+          Al fotografiar tu vehículo en la solicitud, una red neuronal propia estima marca, modelo y año — el
+          asesor los tiene en pantalla antes de que te acerques al módulo.
         </p>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ==================== Para quién ==================== -->
-<section class="border-t border-steel/20 bg-asphalt text-spec-paper">
-  <div class="mx-auto max-w-5xl px-4 sm:px-6 py-16 sm:py-20">
-    <p class="font-data text-xs uppercase tracking-[0.2em] text-spec-paper/60">Para quién</p>
-    <h2 class="mt-3 font-display text-3xl sm:text-display font-bold tracking-tight">
-      El mismo resultado, tres decisiones distintas.
-    </h2>
-    <p class="mt-4 max-w-2xl text-spec-paper/80">
-      Marca, modelo, año y nivel de confianza no cambian según quién pregunta — lo que cambia es para qué se
-      usa esa respuesta.
-    </p>
-
-    <div class="mt-10 grid gap-4 sm:grid-cols-3">
-      <div class="rounded-sm border border-spec-paper/15 bg-spec-paper/5 p-5">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="h-6 w-6 text-signal-amber" aria-hidden="true">
-          <circle cx="10.5" cy="10.5" r="6.5" />
-          <path d="M15.3 15.3 21 21" />
-        </svg>
-        <h3 class="mt-3 font-medium">Compradores de autos usados</h3>
-        <p class="mt-1.5 text-sm text-spec-paper/75">
-          Confirman qué vehículo es en realidad antes de decidir, en vez de confiar solo en lo que dice el
-          anuncio.
+        <p class="mt-3 max-w-xl text-sm text-steel">
+          El catálogo reconoce 196 modelos del mercado estadounidense hasta 2012. Fuera de ese rango — un modelo
+          más reciente, o uno que no se vendió en EE. UU., como un Aveo — el sistema lo dice de frente y lo
+          marca para que el asesor lo confirme a mano. Esa honestidad es parte del producto, no una limitación
+          que escondemos. Tu turno se genera igual.
         </p>
       </div>
 
-      <div class="rounded-sm border border-spec-paper/15 bg-spec-paper/5 p-5">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="h-6 w-6 text-signal-amber" aria-hidden="true">
-          <path d="M12 3l7 3v5.5c0 4.5-3 7-7 9.5-4-2.5-7-5-7-9.5V6l7-3Z" />
-          <path d="M9 12.5l2 2 4-4.5" />
-        </svg>
-        <h3 class="mt-3 font-medium">Aseguradoras</h3>
-        <p class="mt-1.5 text-sm text-spec-paper/75">
-          Usan la identificación como parte del peritaje, sin depender solo de lo que declara el asegurado.
-        </p>
-      </div>
-
-      <div class="rounded-sm border border-spec-paper/15 bg-spec-paper/5 p-5">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="h-6 w-6 text-signal-amber" aria-hidden="true">
-          <circle cx="12" cy="12" r="5" />
-          <path d="M12 3v2.2M12 18.8V21M21 12h-2.2M5.2 12H3M18.3 5.7l-1.6 1.6M7.3 16.7l-1.6 1.6M18.3 18.3l-1.6-1.6M7.3 7.3 5.7 5.7" />
-        </svg>
-        <h3 class="mt-3 font-medium">Talleres</h3>
-        <p class="mt-1.5 text-sm text-spec-paper/75">
-          Confirman modelo y año antes de cotizar piezas o repuestos específicos.
-        </p>
-      </div>
+      <ul class="grid grid-cols-3 gap-2.5 content-start">
+        @for (item of catalogSample; track item.file) {
+          <li class="overflow-hidden rounded-sm border border-steel/25 bg-spec-paper">
+            <div class="aspect-[4/3] overflow-hidden bg-steel/10">
+              <img [src]="'catalogo/' + item.file" [alt]="item.model + ', ' + item.body" loading="lazy" class="h-full w-full object-cover grayscale contrast-125" />
+            </div>
+            <p class="truncate px-2 py-1.5 text-[0.6875rem] font-medium text-asphalt">{{ item.model }}</p>
+          </li>
+        }
+      </ul>
     </div>
   </div>
 </section>
@@ -404,30 +208,13 @@
   aria-label="Abrir el asistente de AutoScan"
   class="group fixed bottom-5 right-5 z-40 flex items-center gap-3 sm:bottom-8 sm:right-8"
 >
-  <span
-    class="hidden rounded-sm border border-steel/25 bg-spec-paper px-3 py-2 font-data text-xs uppercase tracking-wider text-asphalt shadow-sm sm:inline-block"
-  >
+  <span class="hidden rounded-sm border border-steel/25 bg-spec-paper px-3 py-2 font-data text-xs uppercase tracking-wider text-asphalt shadow-sm sm:inline-block">
     Habla con el asistente
   </span>
   <span class="relative block h-14 w-14 sm:h-16 sm:w-16">
-    <span
-      class="absolute inset-0 rounded-full bg-signal-amber/60 motion-safe:animate-ping"
-      aria-hidden="true"
-    ></span>
-    <span
-      class="relative flex h-full w-full items-center justify-center rounded-full bg-signal-amber text-asphalt shadow-lg ring-1 ring-asphalt/10 transition-colors group-hover:bg-asphalt group-hover:text-spec-paper"
-    >
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="1.75"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-        class="h-7 w-7"
-        aria-hidden="true"
-      >
+    <span class="absolute inset-0 rounded-full bg-signal-amber/60 motion-safe:animate-ping" aria-hidden="true"></span>
+    <span class="relative flex h-full w-full items-center justify-center rounded-full bg-signal-amber text-asphalt shadow-lg ring-1 ring-asphalt/10 transition-colors group-hover:bg-asphalt group-hover:text-spec-paper">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" class="h-7 w-7" aria-hidden="true">
         <path d="M12 8V5" />
         <circle cx="12" cy="3.4" r="1.15" fill="currentColor" stroke="none" />
         <rect x="5" y="8" width="14" height="11" rx="3.5" />

@@ -2,6 +2,7 @@ import { Component, inject, signal } from '@angular/core';
 import { ReactiveFormsModule, FormBuilder, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
+import { UsuariosService } from '../../../core/services/usuarios.service';
 import { firebaseAuthErrorMessage } from '../../../core/utils/firebase-error.util';
 
 function passwordsMatchValidator(control: AbstractControl): ValidationErrors | null {
@@ -19,6 +20,7 @@ function passwordsMatchValidator(control: AbstractControl): ValidationErrors | n
 export class Register {
   private readonly fb = inject(FormBuilder);
   private readonly auth = inject(AuthService);
+  private readonly usuarios = inject(UsuariosService);
   private readonly router = inject(Router);
 
   readonly isSubmitting = signal(false);
@@ -27,6 +29,8 @@ export class Register {
   readonly form = this.fb.nonNullable.group(
     {
       displayName: ['', [Validators.required]],
+      cedula: ['', [Validators.required, Validators.pattern(/^\d{10}$/)]],
+      telefono: ['', [Validators.required, Validators.pattern(/^\d{7,10}$/)]],
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.minLength(6)]],
       confirmPassword: ['', [Validators.required]],
@@ -44,8 +48,9 @@ export class Register {
     this.errorMessage.set(null);
 
     try {
-      const { displayName, email, password } = this.form.getRawValue();
-      await this.auth.register(email, password, displayName);
+      const { displayName, cedula, telefono, email, password } = this.form.getRawValue();
+      const user = await this.auth.register(email, password, displayName);
+      await this.usuarios.crearPerfil(user.uid, { nombre: displayName, correo: email, cedula, telefono });
       await this.router.navigateByUrl('/dashboard');
     } catch (error) {
       this.errorMessage.set(firebaseAuthErrorMessage(error));

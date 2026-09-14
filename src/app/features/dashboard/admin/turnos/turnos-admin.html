@@ -1,0 +1,74 @@
+<section class="mx-auto max-w-5xl px-4 sm:px-6 py-8 sm:py-10">
+  <h1 class="font-display text-2xl font-bold tracking-tight text-asphalt">
+    Turnos ({{ filtrados().length }} de {{ turnos().length }})
+  </h1>
+  <p class="mt-2 text-sm text-steel">Los últimos {{ turnos().length }} turnos del sistema, más reciente primero.</p>
+
+  <div class="mt-4 flex flex-wrap gap-3">
+    <input
+      type="text"
+      placeholder="Buscar por código o cliente..."
+      [value]="busqueda()"
+      (input)="busqueda.set($any($event.target).value)"
+      class="flex-1 min-w-[200px] rounded-sm border border-steel/35 bg-white px-3 py-2 text-sm text-asphalt placeholder:text-steel/70 focus:border-signal-amber"
+    />
+    <select
+      [value]="areaId()"
+      (change)="areaId.set($any($event.target).value)"
+      class="rounded-sm border border-steel/35 bg-white px-3 py-2 text-sm text-asphalt focus:border-signal-amber"
+    >
+      <option value="">Todas las áreas</option>
+      @for (area of areas(); track area.id) {
+        <option [value]="area.id">{{ area.nombre }}</option>
+      }
+    </select>
+    <select
+      [value]="estado()"
+      (change)="estado.set($any($event.target).value)"
+      class="rounded-sm border border-steel/35 bg-white px-3 py-2 text-sm text-asphalt focus:border-signal-amber"
+    >
+      <option value="">Todos los estados</option>
+      <option value="pendiente">Pendiente</option>
+      <option value="en_espera">En espera</option>
+      <option value="en_atencion">En atención</option>
+      <option value="atendido">Atendido</option>
+      <option value="cancelado">Cancelado</option>
+    </select>
+  </div>
+
+  <div class="mt-4 overflow-x-auto rounded-sm border border-steel/25 bg-spec-paper">
+    <table class="w-full min-w-[640px] text-left text-sm">
+      <thead>
+        <tr class="border-b border-steel/20 font-data text-[0.6875rem] uppercase tracking-wider text-steel">
+          <th class="px-4 py-2.5 font-medium">Código</th>
+          <th class="px-4 py-2.5 font-medium">Cliente</th>
+          <th class="px-4 py-2.5 font-medium">Área</th>
+          <th class="px-4 py-2.5 font-medium">Estado</th>
+          <th class="px-4 py-2.5 font-medium">Creado</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-steel/15">
+        @for (turno of filtrados(); track turno.id) {
+          <tr>
+            <td class="px-4 py-2.5 font-data text-asphalt">{{ turno.codigo }}</td>
+            <td class="px-4 py-2.5 text-asphalt/85">{{ turno.clienteNombre }}</td>
+            <td class="px-4 py-2.5 text-asphalt/85">{{ nombreArea(turno.areaId) }}</td>
+            <td class="px-4 py-2.5">
+              <span
+                class="rounded-sm border px-2 py-0.5 font-data text-[0.6875rem] uppercase tracking-wider"
+                [class]="claseEstado(turno.estado)"
+              >{{ turno.estado }}</span>
+            </td>
+            <td class="px-4 py-2.5 font-data text-xs text-steel">
+              {{ turno.creadoEn.toDate() | date: 'd MMM, HH:mm' }}
+            </td>
+          </tr>
+        } @empty {
+          <tr>
+            <td colspan="5" class="px-4 py-6 text-center text-steel">Sin resultados.</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</section>

@@ -1,0 +1,130 @@
+<section class="mx-auto max-w-5xl px-4 sm:px-6 py-8 sm:py-10">
+  <div class="grid gap-8 lg:grid-cols-[1fr_1.2fr]">
+    <!-- Formulario -->
+    <div>
+      <h1 class="font-display text-2xl font-bold tracking-tight text-asphalt">
+        {{ editando() ? 'Editar área' : 'Nueva área' }}
+      </h1>
+
+      <form [formGroup]="form" (ngSubmit)="guardar()" class="mt-4 space-y-3">
+        <div>
+          <label class="block text-sm font-medium text-asphalt mb-1">Nombre</label>
+          <input
+            type="text"
+            formControlName="nombre"
+            class="w-full rounded-sm border border-steel/35 bg-white px-3 py-2 text-sm text-asphalt focus:border-signal-amber"
+          />
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-asphalt mb-1">Descripción</label>
+          <textarea
+            formControlName="descripcion"
+            rows="2"
+            class="w-full rounded-sm border border-steel/35 bg-white px-3 py-2 text-sm text-asphalt focus:border-signal-amber"
+          ></textarea>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-sm font-medium text-asphalt mb-1">Prefijo</label>
+            <input
+              type="text"
+              formControlName="prefijo"
+              maxlength="3"
+              class="w-full rounded-sm border border-steel/35 bg-white px-3 py-2 text-sm font-data uppercase text-asphalt focus:border-signal-amber"
+            />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-asphalt mb-1">Duración (min)</label>
+            <input
+              type="number"
+              formControlName="duracionEstimadaMin"
+              min="1"
+              class="w-full rounded-sm border border-steel/35 bg-white px-3 py-2 text-sm font-data text-asphalt focus:border-signal-amber"
+            />
+          </div>
+        </div>
+
+        <div class="flex flex-wrap gap-4 pt-1">
+          <label class="flex items-center gap-2 text-sm text-asphalt">
+            <input type="checkbox" formControlName="activa" class="h-4 w-4 accent-signal-amber" />
+            Activa
+          </label>
+          <label class="flex items-center gap-2 text-sm text-asphalt">
+            <input type="checkbox" formControlName="requiereFoto" class="h-4 w-4 accent-signal-amber" />
+            Requiere fotografía
+          </label>
+        </div>
+
+        @if (error(); as msg) {
+          <p class="text-sm text-rust bg-rust/10 border border-rust/30 rounded-sm px-3 py-2">{{ msg }}</p>
+        }
+
+        <div class="flex gap-3 pt-1">
+          <button
+            type="submit"
+            [disabled]="guardando()"
+            class="inline-flex items-center gap-2 rounded-sm bg-asphalt px-5 py-2.5 text-sm font-medium text-spec-paper transition-colors hover:bg-signal-amber hover:text-asphalt disabled:opacity-50"
+          >
+            {{ guardando() ? 'Guardando...' : editando() ? 'Guardar cambios' : 'Crear área' }}
+          </button>
+          @if (editando()) {
+            <button
+              type="button"
+              (click)="nueva()"
+              class="text-sm text-steel underline decoration-steel/40 underline-offset-4 hover:text-asphalt"
+            >
+              Cancelar
+            </button>
+          }
+        </div>
+      </form>
+    </div>
+
+    <!-- Lista -->
+    <div>
+      <h2 class="font-data text-xs uppercase tracking-[0.2em] text-steel">Áreas ({{ areas().length }})</h2>
+      <ul class="mt-3 divide-y divide-steel/20 rounded-sm border border-steel/25 bg-spec-paper">
+        @for (area of areas(); track area.id) {
+          <li class="flex items-center justify-between gap-3 px-4 py-3">
+            <div class="min-w-0">
+              <p class="flex items-center gap-2 text-sm font-medium text-asphalt">
+                {{ area.nombre }}
+                @if (!area.activa) {
+                  <span class="rounded-sm border border-steel/30 px-1.5 py-0.5 font-data text-[0.625rem] uppercase text-steel">
+                    Inactiva
+                  </span>
+                }
+              </p>
+              <p class="mt-0.5 font-data text-[0.6875rem] text-steel">
+                {{ area.prefijo }} · {{ area.duracionEstimadaMin }} min
+                @if (area.requiereFoto) {
+                  · foto
+                }
+              </p>
+            </div>
+            <div class="flex shrink-0 gap-2">
+              <button
+                type="button"
+                (click)="editar(area)"
+                class="rounded-sm border border-steel/30 px-2.5 py-1 text-xs font-medium text-asphalt hover:border-asphalt"
+              >
+                Editar
+              </button>
+              <button
+                type="button"
+                (click)="eliminar(area)"
+                class="rounded-sm border border-rust/30 px-2.5 py-1 text-xs font-medium text-rust hover:bg-rust hover:text-spec-paper"
+              >
+                Eliminar
+              </button>
+            </div>
+          </li>
+        } @empty {
+          <li class="px-4 py-6 text-center text-sm text-steel">Todavía no hay áreas.</li>
+        }
+      </ul>
+    </div>
+  </div>
+</section>

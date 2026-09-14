@@ -6,7 +6,7 @@
         <span class="flex items-baseline gap-2.5">
           <span class="font-display text-2xl font-bold tracking-tight text-asphalt">AUTOSCAN</span>
           <span class="hidden sm:inline font-data text-[0.6875rem] uppercase tracking-[0.15em] text-steel">
-            Peritaje visual
+            Motors · Turnos
           </span>
         </span>
       </a>
@@ -27,6 +27,40 @@
         >
           Asistente
         </a>
+        @if (rol() === 'cliente') {
+          <a
+            routerLink="/dashboard/turnos/solicitar"
+            routerLinkActive="border-signal-amber bg-signal-amber/10 text-asphalt"
+            class="rounded-sm border border-transparent px-3 py-1.5 text-steel transition-colors hover:border-steel/40 hover:text-asphalt"
+          >
+            Pedir turno
+          </a>
+          <a
+            routerLink="/dashboard/turnos/historial"
+            routerLinkActive="border-signal-amber bg-signal-amber/10 text-asphalt"
+            class="rounded-sm border border-transparent px-3 py-1.5 text-steel transition-colors hover:border-steel/40 hover:text-asphalt"
+          >
+            Mis turnos
+          </a>
+        }
+        @if (rol() === 'asesor') {
+          <a
+            routerLink="/dashboard/asesor"
+            routerLinkActive="border-signal-amber bg-signal-amber/10 text-asphalt"
+            class="rounded-sm border border-transparent px-3 py-1.5 text-steel transition-colors hover:border-steel/40 hover:text-asphalt"
+          >
+            Mi panel
+          </a>
+        }
+        @if (rol() === 'administrador') {
+          <a
+            routerLink="/dashboard/admin"
+            routerLinkActive="border-signal-amber bg-signal-amber/10 text-asphalt"
+            class="rounded-sm border border-transparent px-3 py-1.5 text-steel transition-colors hover:border-steel/40 hover:text-asphalt"
+          >
+            Administración
+          </a>
+        }
       </div>
     </div>
 

@@ -1,0 +1,99 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function estaAutenticado() {
+      return request.auth != null;
+    }
+
+    function usuarioActual() {
+      return get(/databases/$(database)/documents/usuarios/$(request.auth.uid)).data;
+    }
+
+    function esAdministrador() {
+      return estaAutenticado() && usuarioActual().rol == 'administrador';
+    }
+
+    function esAsesorDelModulo(moduloId) {
+      return estaAutenticado() && moduloId != null &&
+        get(/databases/$(database)/documents/modulos/$(moduloId)).data.asesorUid == request.auth.uid;
+    }
+
+    // ---------------------------------------------------------------------
+    // usuarios/{uid} — cada quien lee y crea su propio perfil; el rol de
+    // un doc existente solo lo cambia un administrador (evita que un
+    // cliente se auto-asigne 'asesor' o 'administrador').
+    // ---------------------------------------------------------------------
+    match /usuarios/{uid} {
+      allow read: if estaAutenticado() && (request.auth.uid == uid || esAdministrador());
+      allow create: if estaAutenticado() && request.auth.uid == uid && request.resource.data.rol == 'cliente';
+      allow update: if esAdministrador() ||
+        (estaAutenticado() && request.auth.uid == uid && request.resource.data.rol == resource.data.rol);
+      allow delete: if esAdministrador();
+    }
+
+    // ---------------------------------------------------------------------
+    // areas/{areaId} y modulos/{moduloId} — catálogo administrable.
+    // Lectura pública (sin autenticación): son datos de cartelera —
+    // nombres y duraciones, nada sensible — y la pantalla de sala (punto 8,
+    // sin login) necesita resolverlos para mostrar el nombre del módulo
+    // junto al turno en atención. Solo el admin escribe.
+    // ---------------------------------------------------------------------
+    match /areas/{areaId} {
+      allow read: if true;
+      allow write: if esAdministrador();
+    }
+
+    match /modulos/{moduloId} {
+      allow read: if true;
+      allow write: if esAdministrador();
+    }
+
+    // ---------------------------------------------------------------------
+    // turnos/{turnoId} — el corazón del sistema.
+    // Lectura: el dueño, el asesor de su módulo, el admin, o CUALQUIERA sin
+    // autenticar si el turno está en cola o siendo atendido (pantalla de
+    // sala pública, punto 8). Por eso la pantalla de sala nunca debe pintar
+    // el nombre del cliente — solo código, área y módulo.
+    // Escritura: creación solo por el propio cliente y en estado inicial;
+    // el resto de transiciones sigue la máquina de estados del punto 5.
+    // ---------------------------------------------------------------------
+    match /turnos/{turnoId} {
+      allow read: if resource.data.estado in ['en_espera', 'en_atencion'];
+      allow read: if estaAutenticado() && (
+        resource.data.clienteUid == request.auth.uid ||
+        esAdministrador() ||
+        esAsesorDelModulo(resource.data.moduloId)
+      );
+
+      // 'en_espera' directo: fase 2 no pide foto todavía, así que el turno
+      // nace ya en cola. 'pendiente' queda para cuando la fase 3 agregue el
+      // paso async de clasificación en avalúo.
+      allow create: if estaAutenticado() &&
+        request.resource.data.clienteUid == request.auth.uid &&
+        request.resource.data.estado in ['pendiente', 'en_espera'];
+
+      allow update: if esAdministrador() ||
+        // el cliente solo puede cancelar su propio turno, y solo antes de ser atendido
+        (estaAutenticado() && resource.data.clienteUid == request.auth.uid &&
+          resource.data.estado in ['pendiente', 'en_espera'] &&
+          request.resource.data.estado == 'cancelado') ||
+        // el asesor de ese módulo avanza el turno por la máquina de estados
+        (esAsesorDelModulo(resource.data.moduloId) && (
+          (resource.data.estado == 'en_espera' && request.resource.data.estado == 'en_atencion') ||
+          (resource.data.estado == 'en_atencion' && request.resource.data.estado in ['atendido', 'cancelado'])
+        ));
+
+      allow delete: if false;
+    }
+
+    // ---------------------------------------------------------------------
+    // contadores/{id} — solo respalda el correlativo del código de turno
+    // (AV-001, AV-002...), reiniciado por día. No tiene datos sensibles.
+    // ---------------------------------------------------------------------
+    match /contadores/{contadorId} {
+      allow read, write: if estaAutenticado();
+    }
+  }
+}

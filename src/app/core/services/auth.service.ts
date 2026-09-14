@@ -1,21 +1,17 @@
 import { Injectable, signal } from '@angular/core';
-import { FirebaseApp, initializeApp } from 'firebase/app';
 import {
-  Auth,
   User,
   createUserWithEmailAndPassword,
-  getAuth,
   onAuthStateChanged,
   signInWithEmailAndPassword,
   signOut,
   updateProfile,
 } from 'firebase/auth';
-import { environment } from '../../../environments/environment';
+import { firebaseAuth } from '../firebase/firebase';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  private readonly app: FirebaseApp = initializeApp(environment.firebase);
-  private readonly auth: Auth = getAuth(this.app);
+  private readonly auth = firebaseAuth;
   private readonly authReady: Promise<void>;
 
   /** Usuario de Firebase actualmente autenticado (o null). */

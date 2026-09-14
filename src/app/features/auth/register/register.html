@@ -2,7 +2,7 @@
   <div class="mb-6 flex items-baseline gap-2.5">
     <span class="font-display text-3xl font-bold tracking-tight text-spec-paper">AUTOSCAN</span>
     <span class="hidden sm:inline font-data text-[0.6875rem] uppercase tracking-[0.15em] text-spec-paper/60">
-      Peritaje visual
+      Motors · Turnos
     </span>
   </div>
 
@@ -10,7 +10,7 @@
     class="w-full max-w-sm rounded-sm border border-spec-paper/15 bg-spec-paper/90 p-8 shadow-2xl shadow-black/40 backdrop-blur-xl"
   >
     <h1 class="font-display text-2xl font-bold tracking-tight text-asphalt mb-1">Crear cuenta</h1>
-    <p class="text-sm text-steel mb-6">Regístrate para identificar vehículos con AutoScan.</p>
+    <p class="text-sm text-steel mb-6">Regístrate para pedir tu turno en AutoScan Motors.</p>
 
     <form [formGroup]="form" (ngSubmit)="submit()" class="space-y-4">
       <div>
@@ -22,6 +22,37 @@
           autocomplete="name"
           class="w-full rounded-sm border border-steel/35 bg-white px-3 py-2 text-sm text-asphalt focus:border-signal-amber"
         />
+      </div>
+
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label for="cedula" class="block text-sm font-medium text-asphalt mb-1">Cédula</label>
+          <input
+            id="cedula"
+            type="text"
+            inputmode="numeric"
+            formControlName="cedula"
+            autocomplete="off"
+            class="w-full rounded-sm border border-steel/35 bg-white px-3 py-2 text-sm text-asphalt focus:border-signal-amber"
+          />
+          @if (form.controls.cedula.invalid && form.controls.cedula.touched) {
+            <p class="mt-1 text-xs text-rust">10 dígitos.</p>
+          }
+        </div>
+        <div>
+          <label for="telefono" class="block text-sm font-medium text-asphalt mb-1">Teléfono</label>
+          <input
+            id="telefono"
+            type="tel"
+            inputmode="numeric"
+            formControlName="telefono"
+            autocomplete="tel"
+            class="w-full rounded-sm border border-steel/35 bg-white px-3 py-2 text-sm text-asphalt focus:border-signal-amber"
+          />
+          @if (form.controls.telefono.invalid && form.controls.telefono.touched) {
+            <p class="mt-1 text-xs text-rust">Solo números.</p>
+          }
+        </div>
       </div>
 
       <div>

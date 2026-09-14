@@ -1,0 +1,161 @@
+<section class="mx-auto max-w-5xl px-4 sm:px-6 py-8 sm:py-10">
+  <h1 class="font-display text-2xl font-bold tracking-tight text-asphalt">Estadísticas</h1>
+  <p class="mt-2 text-sm text-steel">
+    Calculadas sobre los últimos {{ stats().total }} turnos registrados — nada de esto es un número de adorno.
+  </p>
+
+  <!-- ==================== La comparación que más importa ==================== -->
+  <div class="mt-6 rounded-sm border border-steel/25 bg-spec-paper p-5 sm:p-6">
+    <p class="font-data text-[0.6875rem] uppercase tracking-wider text-steel">Espera prometida vs. espera real</p>
+    <div class="mt-3 grid grid-cols-2 gap-4 sm:max-w-md">
+      <div>
+        <p class="font-data text-3xl font-medium tabular-nums text-asphalt">
+          {{ stats().esperaPromedioEstimadaMin !== null ? (stats().esperaPromedioEstimadaMin | number: '1.0-1') : '—' }}
+          <span class="text-base text-steel">min</span>
+        </p>
+        <p class="mt-0.5 text-xs text-steel">Estimada (promesa)</p>
+      </div>
+      <div>
+        <p class="font-data text-3xl font-medium tabular-nums text-asphalt">
+          {{ stats().esperaPromedioRealMin !== null ? (stats().esperaPromedioRealMin | number: '1.0-1') : '—' }}
+          <span class="text-base text-steel">min</span>
+        </p>
+        <p class="mt-0.5 text-xs text-steel">Real (medida)</p>
+      </div>
+    </div>
+
+    @if (stats().esperaPromedioRealN > 0) {
+      <p class="mt-3 font-data text-[0.6875rem] uppercase tracking-wider" [class]="esPreliminar(stats().esperaPromedioRealN) ? 'text-rust' : 'text-steel'">
+        Basado en {{ stats().esperaPromedioRealN }} turno{{ stats().esperaPromedioRealN === 1 ? '' : 's' }} atendido{{ stats().esperaPromedioRealN === 1 ? '' : 's' }}
+        @if (esPreliminar(stats().esperaPromedioRealN)) {
+          · dato preliminar, todavía hay poca muestra
+        }
+      </p>
+    } @else {
+      <p class="mt-3 text-sm text-steel">Todavía no hay turnos atendidos para medir esto.</p>
+    }
+
+    @if (deltaEsperaMin(); as delta) {
+      <p
+        class="mt-2 font-data text-xs uppercase tracking-wider"
+        [class]="delta > 0 ? 'text-rust' : 'text-verdigris'"
+      >
+        {{ delta > 0 ? '+' : '' }}{{ delta | number: '1.0-1' }} min {{ delta > 0 ? 'sobre lo prometido' : 'bajo lo prometido' }}
+      </p>
+    }
+  </div>
+
+  <!-- ==================== Cifras generales ==================== -->
+  <dl class="mt-6 grid grid-cols-2 gap-px overflow-hidden rounded-sm border border-steel/25 bg-steel/25 sm:grid-cols-4">
+    <div class="bg-spec-paper px-5 py-6">
+      <dd class="font-data text-3xl font-medium tabular-nums text-asphalt">{{ stats().total }}</dd>
+      <dt class="mt-1 text-xs text-steel">Turnos totales</dt>
+    </div>
+    <div class="bg-spec-paper px-5 py-6">
+      <dd class="font-data text-3xl font-medium tabular-nums text-asphalt">{{ stats().atendidos }}</dd>
+      <dt class="mt-1 text-xs text-steel">Atendidos</dt>
+    </div>
+    <div class="bg-spec-paper px-5 py-6">
+      <dd class="font-data text-3xl font-medium tabular-nums text-asphalt">
+        {{ stats().tasaCancelacionPct !== null ? (stats().tasaCancelacionPct | number: '1.0-1') : '—' }}<span class="text-lg">%</span>
+      </dd>
+      <dt class="mt-1 text-xs text-steel">Tasa de cancelación</dt>
+    </div>
+    <div class="bg-spec-paper px-5 py-6">
+      <dd class="font-data text-3xl font-medium tabular-nums text-asphalt">
+        {{ stats().atencionPromedioMin !== null ? (stats().atencionPromedioMin | number: '1.0-1') : '—' }}
+        <span class="text-lg">min</span>
+      </dd>
+      <dt class="mt-1 text-xs text-steel">
+        Atención promedio
+        @if (esPreliminar(stats().atencionPromedioN)) {
+          <span class="text-rust">· n={{ stats().atencionPromedioN }}</span>
+        }
+      </dt>
+    </div>
+  </dl>
+
+  <div class="mt-8 grid gap-8 lg:grid-cols-2">
+    <!-- Áreas con más demanda -->
+    <div>
+      <h2 class="font-data text-xs uppercase tracking-[0.2em] text-steel">Áreas con más demanda</h2>
+      <div class="mt-3 space-y-2.5">
+        @for (item of stats().porArea; track item.clave) {
+          <div>
+            <div class="flex items-baseline justify-between gap-2 text-sm">
+              <span class="truncate text-asphalt">{{ nombreArea(item.clave) }}</span>
+              <span class="font-data tabular-nums text-steel">{{ item.total }}</span>
+            </div>
+            <div class="mt-1 h-1.5 overflow-hidden rounded-full bg-steel/15">
+              <div class="h-full rounded-full bg-signal-amber" [style.width.%]="anchoPct(item.total, maxPorArea())"></div>
+            </div>
+          </div>
+        } @empty {
+          <p class="text-sm text-steel">Sin datos todavía.</p>
+        }
+      </div>
+    </div>
+
+    <!-- Carga por asesor -->
+    <div>
+      <h2 class="font-data text-xs uppercase tracking-[0.2em] text-steel">Carga por asesor (atendidos)</h2>
+      <div class="mt-3 space-y-2.5">
+        @for (item of stats().porAsesor; track item.clave) {
+          <div>
+            <div class="flex items-baseline justify-between gap-2 text-sm">
+              <span class="truncate text-asphalt">{{ nombreAsesor(item.clave) }}</span>
+              <span class="font-data tabular-nums text-steel">{{ item.total }}</span>
+            </div>
+            <div class="mt-1 h-1.5 overflow-hidden rounded-full bg-steel/15">
+              <div class="h-full rounded-full bg-verdigris" [style.width.%]="anchoPct(item.total, maxPorAsesor())"></div>
+            </div>
+          </div>
+        } @empty {
+          <p class="text-sm text-steel">Sin datos todavía.</p>
+        }
+      </div>
+    </div>
+  </div>
+
+  <div class="mt-8 grid gap-8 lg:grid-cols-2">
+    <!-- Atendidos por día -->
+    <div>
+      <h2 class="font-data text-xs uppercase tracking-[0.2em] text-steel">Atendidos por día</h2>
+      <div class="mt-3 flex h-32 items-end gap-1.5 rounded-sm border border-steel/25 bg-spec-paper px-3 py-3">
+        @for (item of stats().porDia; track item.fecha) {
+          <div class="flex flex-1 flex-col items-center gap-1">
+            <div class="flex h-full w-full items-end">
+              <div
+                class="w-full rounded-t-sm bg-signal-amber"
+                [style.height.%]="alturaPct(item.total, maxPorDia())"
+                [attr.title]="item.total + ' atendidos el ' + item.etiqueta"
+              ></div>
+            </div>
+            <span class="font-data text-[0.5625rem] text-steel">{{ item.etiqueta }}</span>
+          </div>
+        } @empty {
+          <p class="text-sm text-steel">Sin datos todavía.</p>
+        }
+      </div>
+    </div>
+
+    <!-- Horas pico -->
+    <div>
+      <h2 class="font-data text-xs uppercase tracking-[0.2em] text-steel">Horas pico (turnos solicitados)</h2>
+      <div class="mt-3 flex h-32 items-end gap-[3px] rounded-sm border border-steel/25 bg-spec-paper px-3 py-3">
+        @for (item of stats().porHora; track item.hora) {
+          <div
+            class="flex-1 rounded-t-sm bg-verdigris"
+            [style.height.%]="alturaBarraHora(item.total)"
+            [attr.title]="item.hora + ':00 — ' + item.total + ' turnos'"
+          ></div>
+        }
+      </div>
+      <div class="mt-1 flex justify-between font-data text-[0.5625rem] text-steel">
+        <span>00h</span>
+        <span>12h</span>
+        <span>23h</span>
+      </div>
+    </div>
+  </div>
+</section>

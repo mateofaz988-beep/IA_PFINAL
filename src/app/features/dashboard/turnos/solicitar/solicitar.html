@@ -1,0 +1,123 @@
+<section class="mx-auto max-w-3xl px-4 sm:px-6 py-10 sm:py-14">
+  <p class="font-data text-xs uppercase tracking-[0.2em] text-steel">Turnos</p>
+  <h1 class="mt-3 font-display text-3xl sm:text-display font-bold tracking-tight text-asphalt">
+    ¿Qué necesitas hacer hoy?
+  </h1>
+  <p class="mt-4 max-w-xl text-sm leading-relaxed text-asphalt/85">
+    Elige un área. Te damos un código y una hora aproximada de llegada — puedes esperar en casa, no en el
+    concesionario.
+  </p>
+
+  <div class="mt-8 grid gap-3 sm:grid-cols-2">
+    @for (area of areas(); track area.id) {
+      <button
+        type="button"
+        (click)="elegir(area)"
+        [attr.aria-pressed]="seleccionada()?.id === area.id"
+        class="rounded-sm border px-4 py-3.5 text-left transition-colors"
+        [class.border-signal-amber]="seleccionada()?.id === area.id"
+        [class.bg-signal-amber/10]="seleccionada()?.id === area.id"
+        [class.border-steel/25]="seleccionada()?.id !== area.id"
+        [class.bg-spec-paper]="seleccionada()?.id !== area.id"
+      >
+        <div class="flex items-start justify-between gap-3">
+          <p class="text-sm font-medium text-asphalt">{{ area.nombre }}</p>
+          <span
+            class="shrink-0 rounded-sm border border-steel/30 px-2 py-0.5 font-data text-[0.6875rem] uppercase tracking-wider text-steel"
+          >{{ area.prefijo }}</span>
+        </div>
+        <p class="mt-1.5 text-xs text-asphalt/75">{{ area.descripcion }}</p>
+        <p class="mt-2 font-data text-[0.6875rem] text-steel">~{{ area.duracionEstimadaMin }} min de atención</p>
+      </button>
+    } @empty {
+      <p class="col-span-full text-sm text-steel">Todavía no hay áreas activas.</p>
+    }
+  </div>
+
+  @if (seleccionada()?.requiereFoto) {
+    <div class="mt-8 rounded-sm border border-steel/25 bg-spec-paper p-5 sm:p-6">
+      <p class="font-data text-xs uppercase tracking-[0.2em] text-steel">Fotografía del vehículo</p>
+      <p class="mt-2 text-sm text-asphalt/80">
+        La misma identificación visual del asistente: marca, modelo y año quedan registrados en tu turno, así el
+        asesor ya sabe qué vehículo va a recibir.
+      </p>
+
+      <div class="mt-4 flex flex-wrap items-start gap-4">
+        <label
+          class="flex h-24 w-24 shrink-0 cursor-pointer flex-col items-center justify-center gap-1.5 rounded-sm border-2 border-dashed border-steel/40 bg-white/40 text-center transition-colors hover:border-signal-amber hover:bg-signal-amber/5"
+        >
+          @if (imagenPreview(); as preview) {
+            <img [src]="preview" alt="Vista previa del vehículo" class="h-full w-full rounded-sm object-cover" />
+          } @else {
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              class="h-7 w-7 text-steel"
+              aria-hidden="true"
+            >
+              <path d="M4 8h3l1.5-2h7L17 8h3a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1Z" />
+              <circle cx="12" cy="13" r="3.5" />
+            </svg>
+            <span class="font-data text-[0.625rem] uppercase tracking-wider text-steel">Subir foto</span>
+          }
+          <input type="file" accept="image/*" class="hidden" (change)="onFileSelected($event)" />
+        </label>
+
+        <div class="min-w-0 flex-1">
+          @if (analizando()) {
+            <div class="flex items-center gap-2.5">
+              <span class="h-2 w-2 shrink-0 rounded-full bg-signal-amber motion-safe:animate-pulse" aria-hidden="true"></span>
+              <p class="text-sm text-asphalt">Analizando fotografía...</p>
+            </div>
+          } @else if (resultadoVehiculo(); as vehiculo) {
+            @if (!vehiculo.fueraDeCatalogo) {
+              <div class="rounded-sm border-l-4 border-l-verdigris bg-white/60 px-3 py-2.5">
+                <p class="font-data text-sm font-medium text-asphalt">
+                  {{ vehiculo.marca }} {{ vehiculo.modelo }}
+                  @if (vehiculo.anio) {
+                    · {{ vehiculo.anio }}
+                  }
+                </p>
+                @if (vehiculo.confianza !== null) {
+                  <p class="mt-0.5 font-data text-xs tabular-nums text-steel">
+                    Confianza {{ vehiculo.confianza * 100 | number: '1.0-1' }}%
+                  </p>
+                }
+              </div>
+            } @else {
+              <div class="rounded-sm border-l-4 border-l-rust border-dashed bg-white/60 px-3 py-2.5">
+                <p class="font-data text-[0.6875rem] uppercase tracking-wider text-rust">Fuera de catálogo</p>
+                <p class="mt-1 text-sm text-asphalt/85">
+                  No pudimos identificarlo automáticamente — igual puedes pedir tu turno, tu asesor lo revisará al
+                  recibirte.
+                </p>
+              </div>
+            }
+          } @else if (errorFoto(); as msg) {
+            <p class="text-sm text-rust">{{ msg }}</p>
+          } @else {
+            <p class="text-sm text-steel">Sube una fotografía para identificar tu vehículo.</p>
+          }
+        </div>
+      </div>
+    </div>
+  }
+
+  @if (error(); as msg) {
+    <p class="mt-6 text-sm text-rust bg-rust/10 border border-rust/30 rounded-sm px-3 py-2">{{ msg }}</p>
+  }
+
+  <button
+    type="button"
+    (click)="solicitar()"
+    [disabled]="!puedeEnviar()"
+    class="mt-8 inline-flex items-center gap-2 rounded-sm bg-asphalt px-6 py-3 text-base font-medium text-spec-paper transition-colors hover:bg-signal-amber hover:text-asphalt disabled:opacity-50"
+  >
+    {{ enviando() ? 'Generando turno...' : 'Pedir turno' }}
+  </button>
+</section>

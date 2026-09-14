@@ -1,0 +1,77 @@
+<section class="mx-auto max-w-5xl px-4 sm:px-6 py-10 sm:py-14">
+  <p class="font-data text-xs uppercase tracking-[0.2em] text-steel">Administración · Cimientos</p>
+  <h1 class="mt-3 font-display text-3xl sm:text-display font-bold tracking-tight text-asphalt">
+    Áreas y módulos de ejemplo
+  </h1>
+  <p class="mt-4 max-w-2xl text-sm leading-relaxed text-asphalt/85">
+    Crea las cinco áreas del concesionario (venta nueva, avalúo, financiamiento, taller, entrega) y un módulo por
+    área, solo si la base todavía está vacía. No duplica datos si ya existen — puedes hacer clic sin miedo.
+  </p>
+
+  <div class="mt-6 flex flex-wrap items-center gap-4">
+    <button
+      type="button"
+      (click)="sembrar()"
+      [disabled]="sembrando()"
+      class="inline-flex items-center gap-2 rounded-sm bg-asphalt px-5 py-2.5 text-sm font-medium text-spec-paper transition-colors hover:bg-signal-amber hover:text-asphalt disabled:opacity-60"
+    >
+      {{ sembrando() ? 'Sembrando...' : 'Sembrar datos de ejemplo' }}
+    </button>
+
+    @if (resultado(); as msg) {
+      <p class="font-data text-xs text-verdigris">{{ msg }}</p>
+    }
+    @if (error(); as msg) {
+      <p class="font-data text-xs text-rust">{{ msg }}</p>
+    }
+  </div>
+
+  <div class="mt-12 grid gap-8 lg:grid-cols-2">
+    <div>
+      <h2 class="font-data text-xs uppercase tracking-[0.2em] text-steel">Áreas ({{ areas().length }})</h2>
+      <ul class="mt-3 divide-y divide-steel/20 rounded-sm border border-steel/25 bg-spec-paper">
+        @for (area of areas(); track area.id) {
+          <li class="flex items-center justify-between gap-3 px-4 py-3">
+            <div>
+              <p class="text-sm font-medium text-asphalt">{{ area.nombre }}</p>
+              <p class="font-data text-[0.6875rem] text-steel">
+                {{ area.id }} · {{ area.duracionEstimadaMin }} min
+                @if (area.requiereFoto) {
+                  · requiere foto
+                }
+              </p>
+            </div>
+            <span
+              class="rounded-sm border border-steel/30 px-2 py-1 font-data text-[0.6875rem] uppercase tracking-wider text-steel"
+            >{{ area.prefijo }}</span>
+          </li>
+        } @empty {
+          <li class="px-4 py-6 text-center text-sm text-steel">Todavía no hay áreas.</li>
+        }
+      </ul>
+    </div>
+
+    <div>
+      <h2 class="font-data text-xs uppercase tracking-[0.2em] text-steel">Módulos ({{ modulos().length }})</h2>
+      <ul class="mt-3 divide-y divide-steel/20 rounded-sm border border-steel/25 bg-spec-paper">
+        @for (modulo of modulos(); track modulo.id) {
+          <li class="flex items-center justify-between gap-3 px-4 py-3">
+            <div>
+              <p class="text-sm font-medium text-asphalt">{{ modulo.nombre }}</p>
+              <p class="font-data text-[0.6875rem] text-steel">{{ modulo.areaId }}</p>
+            </div>
+            <span
+              class="rounded-sm border px-2 py-1 font-data text-[0.6875rem] uppercase tracking-wider"
+              [class.border-verdigris/40]="modulo.estado === 'activo'"
+              [class.text-verdigris]="modulo.estado === 'activo'"
+              [class.border-steel/30]="modulo.estado !== 'activo'"
+              [class.text-steel]="modulo.estado !== 'activo'"
+            >{{ modulo.estado }}</span>
+          </li>
+        } @empty {
+          <li class="px-4 py-6 text-center text-sm text-steel">Todavía no hay módulos.</li>
+        }
+      </ul>
+    </div>
+  </div>
+</section>
