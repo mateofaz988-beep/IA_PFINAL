@@ -1,11 +1,11 @@
 <section class="mx-auto max-w-5xl px-4 sm:px-6 py-10 sm:py-14">
   <p class="font-data text-xs uppercase tracking-[0.2em] text-steel">Administración · Cimientos</p>
   <h1 class="mt-3 font-display text-3xl sm:text-display font-bold tracking-tight text-asphalt">
-    Áreas y módulos de ejemplo
+    Datos de ejemplo
   </h1>
   <p class="mt-4 max-w-2xl text-sm leading-relaxed text-asphalt/85">
-    Crea las cinco áreas del concesionario (venta nueva, avalúo, financiamiento, taller, entrega) y un módulo por
-    área, solo si la base todavía está vacía. No duplica datos si ya existen — puedes hacer clic sin miedo.
+    Crea áreas, módulos y vehículos de ejemplo para empezar a trabajar. Solo se ejecuta si la base está vacía.
+    No duplica datos si ya existen — puedes hacer clic sin riesgo.
   </p>
 
   <div class="mt-6 flex flex-wrap items-center gap-4">
@@ -26,7 +26,7 @@
     }
   </div>
 
-  <div class="mt-12 grid gap-8 lg:grid-cols-2">
+  <div class="mt-12 grid gap-8 lg:grid-cols-3">
     <div>
       <h2 class="font-data text-xs uppercase tracking-[0.2em] text-steel">Áreas ({{ areas().length }})</h2>
       <ul class="mt-3 divide-y divide-steel/20 rounded-sm border border-steel/25 bg-spec-paper">
@@ -36,9 +36,6 @@
               <p class="text-sm font-medium text-asphalt">{{ area.nombre }}</p>
               <p class="font-data text-[0.6875rem] text-steel">
                 {{ area.id }} · {{ area.duracionEstimadaMin }} min
-                @if (area.requiereFoto) {
-                  · requiere foto
-                }
               </p>
             </div>
             <span
@@ -46,7 +43,7 @@
             >{{ area.prefijo }}</span>
           </li>
         } @empty {
-          <li class="px-4 py-6 text-center text-sm text-steel">Todavía no hay áreas.</li>
+          <li class="px-4 py-6 text-center text-sm text-steel">Sin áreas.</li>
         }
       </ul>
     </div>
@@ -69,7 +66,30 @@
             >{{ modulo.estado }}</span>
           </li>
         } @empty {
-          <li class="px-4 py-6 text-center text-sm text-steel">Todavía no hay módulos.</li>
+          <li class="px-4 py-6 text-center text-sm text-steel">Sin módulos.</li>
+        }
+      </ul>
+    </div>
+
+    <div>
+      <h2 class="font-data text-xs uppercase tracking-[0.2em] text-steel">Vehículos ({{ vehiculos().length }})</h2>
+      <ul class="mt-3 divide-y divide-steel/20 rounded-sm border border-steel/25 bg-spec-paper">
+        @for (vehiculo of vehiculos().slice(0, 5); track vehiculo.id) {
+          <li class="px-4 py-3">
+            <p class="text-sm font-medium text-asphalt">{{ vehiculo.marca }} {{ vehiculo.modelo }}</p>
+            <p class="font-data text-[0.6875rem] text-steel">
+              {{ vehiculo.anio }} · ${{ vehiculo.precio.toLocaleString() }}
+            </p>
+          </li>
+        } @empty {
+          <li class="px-4 py-6 text-center text-sm text-steel">Sin vehículos.</li>
+        }
+        @if (vehiculos().length > 5) {
+          <li class="px-4 py-3 text-center">
+            <p class="font-data text-[0.6875rem] text-steel">
+              y {{ vehiculos().length - 5 }} más...
+            </p>
+          </li>
         }
       </ul>
     </div>

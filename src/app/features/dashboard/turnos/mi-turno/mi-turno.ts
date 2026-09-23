@@ -1,7 +1,7 @@
 import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, DestroyRef, computed, inject, signal } from '@angular/core';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { distinctUntilChanged, map, of, switchMap } from 'rxjs';
 import { AreasService } from '../../../../core/services/areas.service';
 import { ModulosService } from '../../../../core/services/modulos.service';
@@ -11,7 +11,7 @@ import { estimacionEnVivo, posicionEnCola } from '../../../../core/utils/estimac
 @Component({
   selector: 'app-mi-turno',
   standalone: true,
-  imports: [DatePipe],
+  imports: [DatePipe, RouterLink],
   templateUrl: './mi-turno.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

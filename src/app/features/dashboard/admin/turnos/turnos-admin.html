@@ -1,21 +1,74 @@
-<section class="mx-auto max-w-5xl px-4 sm:px-6 py-8 sm:py-10">
-  <h1 class="font-display text-2xl font-bold tracking-tight text-asphalt">
-    Turnos ({{ filtrados().length }} de {{ turnos().length }})
-  </h1>
-  <p class="mt-2 text-sm text-steel">Los últimos {{ turnos().length }} turnos del sistema, más reciente primero.</p>
+<section class="mx-auto max-w-7xl px-4 sm:px-6 py-8 sm:py-10">
+  <!-- Header con Estadísticas -->
+  <div class="mb-6">
+    <h1 class="font-display text-2xl font-bold tracking-tight text-asphalt">
+      Gestión de Turnos
+    </h1>
+    <p class="mt-2 text-sm text-steel">
+      Mostrando {{ filtrados().length }} de {{ turnos().length }} turnos del sistema
+    </p>
+  </div>
 
+  <!-- Estadísticas -->
+  <div class="mb-6 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+    <div class="rounded-sm border border-steel/25 bg-spec-paper p-4">
+      <p class="font-data text-xs uppercase tracking-wider text-steel">Total</p>
+      <p class="mt-1 font-display text-2xl font-bold text-asphalt">{{ estadisticas().total }}</p>
+    </div>
+    
+    @if (turnosNuevos() > 0) {
+      <div class="rounded-sm border border-signal-amber bg-signal-amber/10 p-4">
+        <p class="font-data text-xs uppercase tracking-wider text-signal-amber">Nuevos (5 min)</p>
+        <p class="mt-1 font-display text-2xl font-bold text-signal-amber">{{ turnosNuevos() }}</p>
+      </div>
+    }
+    
+    <div class="rounded-sm border border-blue-600/25 bg-blue-50 p-4">
+      <p class="font-data text-xs uppercase tracking-wider text-blue-600">Pendientes</p>
+      <p class="mt-1 font-display text-2xl font-bold text-blue-600">{{ estadisticas().pendientes }}</p>
+    </div>
+    
+    <div class="rounded-sm border border-signal-amber/25 bg-signal-amber/10 p-4">
+      <p class="font-data text-xs uppercase tracking-wider text-signal-amber">En Espera</p>
+      <p class="mt-1 font-display text-2xl font-bold text-signal-amber">{{ estadisticas().enEspera }}</p>
+    </div>
+    
+    <div class="rounded-sm border border-verdigris/25 bg-verdigris/10 p-4">
+      <p class="font-data text-xs uppercase tracking-wider text-verdigris">En Atención</p>
+      <p class="mt-1 font-display text-2xl font-bold text-verdigris">{{ estadisticas().enAtencion }}</p>
+    </div>
+    
+    <div class="rounded-sm border border-steel/25 bg-steel/10 p-4">
+      <p class="font-data text-xs uppercase tracking-wider text-steel">Atendidos</p>
+      <p class="mt-1 font-display text-2xl font-bold text-steel">{{ estadisticas().atendidos }}</p>
+    </div>
+    
+    <div class="rounded-sm border border-rust/25 bg-rust/10 p-4">
+      <p class="font-data text-xs uppercase tracking-wider text-rust">Cancelados</p>
+      <p class="mt-1 font-display text-2xl font-bold text-rust">{{ estadisticas().cancelados }}</p>
+    </div>
+  </div>
+
+  <!-- Error Message -->
+  @if (error()) {
+    <div class="mb-4 rounded-sm border border-rust bg-rust/10 px-4 py-3">
+      <p class="text-sm text-rust">{{ error() }}</p>
+    </div>
+  }
+
+  <!-- Filtros -->
   <div class="mt-4 flex flex-wrap gap-3">
     <input
       type="text"
       placeholder="Buscar por código o cliente..."
       [value]="busqueda()"
       (input)="busqueda.set($any($event.target).value)"
-      class="flex-1 min-w-[200px] rounded-sm border border-steel/35 bg-white px-3 py-2 text-sm text-asphalt placeholder:text-steel/70 focus:border-signal-amber"
+      class="flex-1 min-w-[200px] rounded-sm border border-steel/35 bg-white px-3 py-2 text-sm text-asphalt placeholder:text-steel/70 focus:border-signal-amber focus:outline-none focus:ring-1 focus:ring-signal-amber"
     />
     <select
       [value]="areaId()"
       (change)="areaId.set($any($event.target).value)"
-      class="rounded-sm border border-steel/35 bg-white px-3 py-2 text-sm text-asphalt focus:border-signal-amber"
+      class="rounded-sm border border-steel/35 bg-white px-3 py-2 text-sm text-asphalt focus:border-signal-amber focus:outline-none focus:ring-1 focus:ring-signal-amber"
     >
       <option value="">Todas las áreas</option>
       @for (area of areas(); track area.id) {
@@ -25,7 +78,7 @@
     <select
       [value]="estado()"
       (change)="estado.set($any($event.target).value)"
-      class="rounded-sm border border-steel/35 bg-white px-3 py-2 text-sm text-asphalt focus:border-signal-amber"
+      class="rounded-sm border border-steel/35 bg-white px-3 py-2 text-sm text-asphalt focus:border-signal-amber focus:outline-none focus:ring-1 focus:ring-signal-amber"
     >
       <option value="">Todos los estados</option>
       <option value="pendiente">Pendiente</option>
@@ -36,36 +89,93 @@
     </select>
   </div>
 
+  <!-- Tabla de Turnos -->
   <div class="mt-4 overflow-x-auto rounded-sm border border-steel/25 bg-spec-paper">
-    <table class="w-full min-w-[640px] text-left text-sm">
+    <table class="w-full min-w-[960px] text-left text-sm">
       <thead>
         <tr class="border-b border-steel/20 font-data text-[0.6875rem] uppercase tracking-wider text-steel">
           <th class="px-4 py-2.5 font-medium">Código</th>
           <th class="px-4 py-2.5 font-medium">Cliente</th>
           <th class="px-4 py-2.5 font-medium">Área</th>
+          <th class="px-4 py-2.5 font-medium">Hora Estimada</th>
           <th class="px-4 py-2.5 font-medium">Estado</th>
           <th class="px-4 py-2.5 font-medium">Creado</th>
+          <th class="px-4 py-2.5 font-medium text-right">Acciones</th>
         </tr>
       </thead>
       <tbody class="divide-y divide-steel/15">
         @for (turno of filtrados(); track turno.id) {
-          <tr>
-            <td class="px-4 py-2.5 font-data text-asphalt">{{ turno.codigo }}</td>
-            <td class="px-4 py-2.5 text-asphalt/85">{{ turno.clienteNombre }}</td>
+          <tr [class.bg-signal-amber/5]="turnosNuevos() > 0 && esTurnoNuevo(turno)">
+            <td class="px-4 py-2.5 font-data text-asphalt font-semibold">{{ turno.codigo }}</td>
+            <td class="px-4 py-2.5">
+              <div class="text-asphalt font-medium">{{ turno.clienteNombre }}</div>
+              <div class="text-xs text-steel">{{ turno.clienteUid.slice(0, 8) }}...</div>
+            </td>
             <td class="px-4 py-2.5 text-asphalt/85">{{ nombreArea(turno.areaId) }}</td>
+            <td class="px-4 py-2.5 font-data text-xs text-asphalt">{{ obtenerHoraEstimada(turno) }}</td>
             <td class="px-4 py-2.5">
               <span
-                class="rounded-sm border px-2 py-0.5 font-data text-[0.6875rem] uppercase tracking-wider"
+                class="inline-block rounded-sm border px-2 py-0.5 font-data text-[0.6875rem] uppercase tracking-wider"
                 [class]="claseEstado(turno.estado)"
-              >{{ turno.estado }}</span>
+              >{{ labelEstado(turno.estado) }}</span>
             </td>
-            <td class="px-4 py-2.5 font-data text-xs text-steel">
-              {{ turno.creadoEn.toDate() | date: 'd MMM, HH:mm' }}
+            <td class="px-4 py-2.5">
+              <div class="font-data text-xs text-steel">
+                {{ turno.creadoEn.toDate() | date: 'd MMM y' }}
+              </div>
+              <div class="font-data text-xs font-medium text-asphalt">
+                {{ turno.creadoEn.toDate() | date: 'HH:mm:ss' }}
+              </div>
+            </td>
+            <td class="px-4 py-2.5">
+              <div class="flex justify-end gap-2">
+                @if (puedeAtender(turno)) {
+                  <button
+                    (click)="atenderTurno(turno.id)"
+                    [disabled]="procesando() === turno.id"
+                    class="rounded-sm border border-verdigris bg-verdigris/10 px-2 py-1 text-xs font-medium text-verdigris hover:bg-verdigris/20 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    title="Marcar como 'En Atención'"
+                  >
+                    Atender
+                  </button>
+                }
+                
+                @if (puedeFinalizar(turno)) {
+                  <button
+                    (click)="finalizarTurno(turno.id)"
+                    [disabled]="procesando() === turno.id"
+                    class="rounded-sm border border-steel bg-steel/10 px-2 py-1 text-xs font-medium text-steel hover:bg-steel/20 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    title="Marcar como 'Atendido'"
+                  >
+                    Finalizar
+                  </button>
+                }
+                
+                @if (puedeCancelar(turno)) {
+                  <button
+                    (click)="cancelarTurno(turno.id)"
+                    [disabled]="procesando() === turno.id"
+                    class="rounded-sm border border-rust bg-rust/10 px-2 py-1 text-xs font-medium text-rust hover:bg-rust/20 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    title="Cancelar turno"
+                  >
+                    Cancelar
+                  </button>
+                }
+                
+                @if (turno.estado === 'atendido' || turno.estado === 'cancelado') {
+                  <span class="text-xs text-steel/50 px-2 py-1">—</span>
+                }
+              </div>
             </td>
           </tr>
         } @empty {
           <tr>
-            <td colspan="5" class="px-4 py-6 text-center text-steel">Sin resultados.</td>
+            <td colspan="7" class="px-4 py-8 text-center">
+              <svg class="mx-auto h-12 w-12 text-steel/40 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+              </svg>
+              <p class="text-steel">No hay turnos que mostrar con los filtros seleccionados.</p>
+            </td>
           </tr>
         }
       </tbody>

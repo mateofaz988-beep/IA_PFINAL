@@ -33,6 +33,14 @@ export const routes: Routes = [
         loadComponent: () => import('./features/dashboard/assistant/assistant').then((m) => m.Assistant),
       },
       {
+        path: 'evaluador',
+        loadComponent: () => import('./features/dashboard/form/dashboard-form').then((m) => m.DashboardForm),
+      },
+      {
+        path: 'resultados',
+        loadComponent: () => import('./features/dashboard/results/results').then((m) => m.Results),
+      },
+      {
         path: 'admin',
         canActivate: [roleGuard(['administrador'])],
         loadComponent: () => import('./features/dashboard/admin/admin-shell/admin-shell').then((m) => m.AdminShell),
@@ -68,6 +76,21 @@ export const routes: Routes = [
             path: 'sembrar',
             loadComponent: () => import('./features/dashboard/admin/seed/seed').then((m) => m.AdminSeed),
           },
+          {
+            path: 'inventario',
+            loadComponent: () =>
+              import('./features/dashboard/admin/inventario/inventario-admin').then((m) => m.InventarioAdmin),
+          },
+          {
+            path: 'inventario/nuevo',
+            loadComponent: () =>
+              import('./features/dashboard/admin/inventario/vehiculo-form').then((m) => m.VehiculoForm),
+          },
+          {
+            path: 'inventario/:id/editar',
+            loadComponent: () =>
+              import('./features/dashboard/admin/inventario/vehiculo-form').then((m) => m.VehiculoForm),
+          },
         ],
       },
       {
@@ -90,6 +113,14 @@ export const routes: Routes = [
         loadComponent: () => import('./features/dashboard/asesor/panel/panel').then((m) => m.AsesorPanel),
       },
     ],
+  },
+  {
+    path: 'catalogo',
+    loadComponent: () => import('./features/catalogo/catalogo').then((m) => m.Catalogo),
+  },
+  {
+    path: 'catalogo/:id',
+    loadComponent: () => import('./features/catalogo/vehiculo-detalle').then((m) => m.VehiculoDetalle),
   },
   { path: '**', redirectTo: 'login' },
 ];

@@ -27,20 +27,34 @@
         >
           Asistente
         </a>
+        <a
+          routerLink="/dashboard/evaluador"
+          routerLinkActive="border-signal-amber bg-signal-amber/10 text-asphalt"
+          class="rounded-sm border border-transparent px-3 py-1.5 text-steel transition-colors hover:border-steel/40 hover:text-asphalt"
+        >
+          Evaluador
+        </a>
+        <a
+          routerLink="/catalogo"
+          routerLinkActive="border-signal-amber bg-signal-amber/10 text-asphalt"
+          class="rounded-sm border border-transparent px-3 py-1.5 text-steel transition-colors hover:border-steel/40 hover:text-asphalt"
+        >
+          Catálogo
+        </a>
         @if (rol() === 'cliente') {
           <a
             routerLink="/dashboard/turnos/solicitar"
             routerLinkActive="border-signal-amber bg-signal-amber/10 text-asphalt"
             class="rounded-sm border border-transparent px-3 py-1.5 text-steel transition-colors hover:border-steel/40 hover:text-asphalt"
           >
-            Pedir turno
+            Solicitar Turno
           </a>
           <a
             routerLink="/dashboard/turnos/historial"
             routerLinkActive="border-signal-amber bg-signal-amber/10 text-asphalt"
-            class="rounded-sm border border-transparent px-3 py-1.5 text-steel transition-colors hover:border-steel/40 hover:text-asphalt"
+            class="rounded-sm border border-transparent px-3 py-1.5 text-verdigris transition-colors hover:border-verdigris/40 hover:text-asphalt hover:bg-verdigris/10"
           >
-            Mis turnos
+            Mis Turnos
           </a>
         }
         @if (rol() === 'asesor') {
@@ -56,7 +70,7 @@
           <a
             routerLink="/dashboard/admin"
             routerLinkActive="border-signal-amber bg-signal-amber/10 text-asphalt"
-            class="rounded-sm border border-transparent px-3 py-1.5 text-steel transition-colors hover:border-steel/40 hover:text-asphalt"
+            class="rounded-sm border border-transparent px-3 py-1.5 text-rust transition-colors hover:border-rust/40 hover:text-asphalt hover:bg-rust/10"
           >
             Administración
           </a>

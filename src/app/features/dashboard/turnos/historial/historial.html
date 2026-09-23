@@ -1,26 +1,135 @@
-<section class="mx-auto max-w-3xl px-4 sm:px-6 py-10 sm:py-14">
-  <p class="font-data text-xs uppercase tracking-[0.2em] text-steel">Turnos</p>
-  <h1 class="mt-3 font-display text-3xl sm:text-display font-bold tracking-tight text-asphalt">Mi historial</h1>
+<section class="mx-auto max-w-4xl px-4 sm:px-6 py-10 sm:py-14">
+  <!-- Header -->
+  <div class="mb-8">
+    <p class="font-data text-xs uppercase tracking-[0.2em] text-steel">Turnos</p>
+    <h1 class="mt-3 font-display text-3xl sm:text-display font-bold tracking-tight text-asphalt">Mis Turnos</h1>
+    <p class="mt-2 text-sm text-steel">Consulta el estado de tus turnos y su historial completo.</p>
+  </div>
 
-  <ul class="mt-8 divide-y divide-steel/20 rounded-sm border border-steel/25 bg-spec-paper">
+  <!-- Estadísticas -->
+  @if (turnos().length > 0) {
+    <div class="mb-6 grid grid-cols-2 sm:grid-cols-4 gap-4">
+      @if (estadisticas().activos > 0) {
+        <div class="rounded-sm border border-verdigris/25 bg-verdigris/10 p-4">
+          <p class="font-data text-xs uppercase tracking-wider text-verdigris">Activos</p>
+          <p class="mt-1 font-display text-2xl font-bold text-verdigris">{{ estadisticas().activos }}</p>
+        </div>
+      }
+      <div class="rounded-sm border border-steel/25 bg-spec-paper p-4">
+        <p class="font-data text-xs uppercase tracking-wider text-steel">Total</p>
+        <p class="mt-1 font-display text-2xl font-bold text-asphalt">{{ estadisticas().total }}</p>
+      </div>
+      <div class="rounded-sm border border-steel/25 bg-steel/10 p-4">
+        <p class="font-data text-xs uppercase tracking-wider text-steel">Atendidos</p>
+        <p class="mt-1 font-display text-2xl font-bold text-steel">{{ estadisticas().atendidos }}</p>
+      </div>
+      <div class="rounded-sm border border-rust/25 bg-rust/10 p-4">
+        <p class="font-data text-xs uppercase tracking-wider text-rust">Cancelados</p>
+        <p class="mt-1 font-display text-2xl font-bold text-rust">{{ estadisticas().cancelados }}</p>
+      </div>
+    </div>
+  }
+
+  <!-- Botón Solicitar Turno -->
+  <div class="mb-6 flex justify-end">
+    <a
+      routerLink="/dashboard/turnos/solicitar"
+      class="inline-flex items-center gap-2 rounded-sm border border-verdigris bg-verdigris/10 px-4 py-2.5 text-sm font-medium text-verdigris transition-colors hover:bg-verdigris/20"
+    >
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+      </svg>
+      Solicitar Nuevo Turno
+    </a>
+  </div>
+
+  <!-- Lista de Turnos -->
+  <div class="space-y-4">
     @for (turno of turnos(); track turno.id) {
-      <li>
-        <a
-          [routerLink]="['/dashboard/turnos', turno.id]"
-          class="flex items-center justify-between gap-3 px-4 py-3.5 transition-colors hover:bg-signal-amber/10"
-        >
-          <div>
-            <p class="font-data text-sm font-medium text-asphalt">{{ turno.codigo }}</p>
-            <p class="mt-0.5 text-xs text-steel">{{ turno.creadoEn.toDate() | date: 'd MMM, HH:mm' }}</p>
+      <a
+        [routerLink]="['/dashboard/turnos', turno.id]"
+        class="block rounded-sm border border-steel/25 bg-spec-paper transition-all hover:border-signal-amber hover:shadow-sm"
+      >
+        <div class="p-4 sm:p-5">
+          <div class="flex items-start justify-between gap-4">
+            <!-- Información Principal -->
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center gap-3 mb-2">
+                <span class="text-2xl">{{ iconoEstado(turno.estado) }}</span>
+                <div>
+                  <p class="font-data text-lg font-bold text-asphalt">{{ turno.codigo }}</p>
+                  <p class="text-sm text-steel">{{ nombreArea(turno.areaId) }}</p>
+                </div>
+              </div>
+              
+              <div class="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
+                <div>
+                  <span class="text-steel">Hora estimada:</span>
+                  <span class="ml-2 font-data text-asphalt font-medium">{{ obtenerHoraEstimada(turno) }}</span>
+                </div>
+                <div>
+                  <span class="text-steel">Creado:</span>
+                  <span class="ml-2 font-data text-asphalt">{{ turno.creadoEn.toDate() | date: 'd MMM y, HH:mm' }}</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Estado -->
+            <div class="flex-shrink-0">
+              <span
+                class="inline-block rounded-sm border px-3 py-1.5 font-data text-xs uppercase tracking-wider whitespace-nowrap"
+                [class]="claseEstado(turno.estado)"
+              >
+                {{ labelEstado(turno.estado) }}
+              </span>
+            </div>
           </div>
-          <span
-            class="shrink-0 rounded-sm border px-2 py-1 font-data text-[0.6875rem] uppercase tracking-wider"
-            [class]="claseEstado(turno.estado)"
-          >{{ turno.estado }}</span>
-        </a>
-      </li>
+
+          <!-- Mensaje de Estado -->
+          @if (turno.estado === 'en_espera') {
+            <div class="mt-3 rounded-sm bg-signal-amber/10 border border-signal-amber/30 px-3 py-2">
+              <p class="text-xs text-signal-amber">
+                ⏰ Tu turno está en espera. Te atenderán en el rango estimado.
+              </p>
+            </div>
+          }
+          @if (turno.estado === 'en_atencion') {
+            <div class="mt-3 rounded-sm bg-verdigris/10 border border-verdigris/30 px-3 py-2">
+              <p class="text-xs text-verdigris">
+                ✨ ¡Tu turno está siendo atendido ahora mismo!
+              </p>
+            </div>
+          }
+          @if (turno.estado === 'atendido') {
+            <div class="mt-3 rounded-sm bg-steel/10 border border-steel/30 px-3 py-2">
+              <p class="text-xs text-steel">
+                ✅ Turno completado. Gracias por tu visita.
+              </p>
+            </div>
+          }
+        </div>
+
+        <!-- Ver Detalles Arrow -->
+        <div class="border-t border-steel/15 px-4 sm:px-5 py-2.5 flex items-center justify-between bg-steel/5 hover:bg-steel/10 transition-colors">
+          <span class="text-xs text-steel font-medium">Ver detalles completos</span>
+          <svg class="w-4 h-4 text-steel" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+          </svg>
+        </div>
+      </a>
     } @empty {
-      <li class="px-4 py-8 text-center text-sm text-steel">Todavía no has pedido ningún turno.</li>
+      <div class="rounded-sm border border-steel/25 bg-spec-paper px-4 py-12 text-center">
+        <svg class="mx-auto h-16 w-16 text-steel/40 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+        </svg>
+        <p class="text-steel mb-4">Todavía no has solicitado ningún turno.</p>
+        <a
+          routerLink="/dashboard/turnos/solicitar"
+          class="inline-flex items-center gap-2 rounded-sm border border-verdigris bg-verdigris/10 px-4 py-2 text-sm font-medium text-verdigris hover:bg-verdigris/20 transition-colors"
+        >
+          Solicitar mi primer turno
+        </a>
+      </div>
     }
-  </ul>
+  </div>
 </section>

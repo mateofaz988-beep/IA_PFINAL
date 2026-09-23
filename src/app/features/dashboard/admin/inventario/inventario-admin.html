@@ -1,0 +1,302 @@
+<section class="mx-auto max-w-7xl px-4 sm:px-6 py-8 sm:py-10">
+  <div class="flex items-center justify-between gap-4 flex-wrap">
+    <div>
+      <p class="font-data text-xs uppercase tracking-[0.2em] text-steel">Administración · Inventario</p>
+      <h1 class="mt-2 font-display text-2xl font-bold tracking-tight text-asphalt">Vehículos</h1>
+    </div>
+    <a
+      routerLink="/dashboard/admin/inventario/nuevo"
+      class="inline-flex items-center gap-2 rounded-sm bg-asphalt px-4 py-2.5 text-sm font-medium text-spec-paper transition-colors hover:bg-signal-amber hover:text-asphalt"
+    >
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        class="h-4 w-4"
+      >
+        <path d="M12 5v14M5 12h14" />
+      </svg>
+      Nuevo Vehículo
+    </a>
+  </div>
+
+  <!-- Estadísticas -->
+  <div class="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+    <div class="rounded-sm border border-steel/25 bg-white px-4 py-3">
+      <p class="font-data text-xs uppercase tracking-wider text-steel">Total</p>
+      <p class="mt-1 font-display text-2xl font-bold text-asphalt">{{ estadisticas().total }}</p>
+    </div>
+    <div class="rounded-sm border border-verdigris/25 bg-white px-4 py-3">
+      <p class="font-data text-xs uppercase tracking-wider text-verdigris">Disponibles</p>
+      <p class="mt-1 font-display text-2xl font-bold text-verdigris">{{ estadisticas().disponibles }}</p>
+    </div>
+    <div class="rounded-sm border border-signal-amber/25 bg-white px-4 py-3">
+      <p class="font-data text-xs uppercase tracking-wider text-signal-amber">Reservados</p>
+      <p class="mt-1 font-display text-2xl font-bold text-signal-amber">{{ estadisticas().reservados }}</p>
+    </div>
+    <div class="rounded-sm border border-steel/25 bg-white px-4 py-3">
+      <p class="font-data text-xs uppercase tracking-wider text-steel">Vendidos</p>
+      <p class="mt-1 font-display text-2xl font-bold text-steel">{{ estadisticas().vendidos }}</p>
+    </div>
+    <div class="rounded-sm border border-steel/25 bg-white px-4 py-3">
+      <p class="font-data text-xs uppercase tracking-wider text-steel">Destacados</p>
+      <p class="mt-1 font-display text-2xl font-bold text-asphalt">{{ estadisticas().destacados }}</p>
+    </div>
+  </div>
+
+  <!-- Filtros -->
+  <div class="mt-6 rounded-sm border border-steel/25 bg-white p-4">
+    <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+      <div>
+        <label class="block text-xs font-medium text-asphalt mb-1">Búsqueda</label>
+        <input
+          type="text"
+          [value]="busqueda()"
+          (input)="busqueda.set($any($event.target).value)"
+          placeholder="Marca, modelo..."
+          class="w-full rounded-sm border border-steel/35 bg-white px-3 py-2 text-sm text-asphalt focus:border-signal-amber"
+        />
+      </div>
+
+      <div>
+        <label class="block text-xs font-medium text-asphalt mb-1">Categoría</label>
+        <select
+          [value]="categoriaFiltro()"
+          (change)="categoriaFiltro.set($any($event.target).value)"
+          class="w-full rounded-sm border border-steel/35 bg-white px-3 py-2 text-sm text-asphalt focus:border-signal-amber"
+        >
+          <option value="">Todas</option>
+          <option value="sedan">Sedán</option>
+          <option value="suv">SUV</option>
+          <option value="pickup">Pickup</option>
+          <option value="hatchback">Hatchback</option>
+          <option value="coupe">Coupé</option>
+          <option value="minivan">Minivan</option>
+          <option value="van">Van</option>
+          <option value="deportivo">Deportivo</option>
+        </select>
+      </div>
+
+      <div>
+        <label class="block text-xs font-medium text-asphalt mb-1">Tipo</label>
+        <select
+          [value]="tipoFiltro()"
+          (change)="tipoFiltro.set($any($event.target).value)"
+          class="w-full rounded-sm border border-steel/35 bg-white px-3 py-2 text-sm text-asphalt focus:border-signal-amber"
+        >
+          <option value="">Todos</option>
+          <option value="nuevo">Nuevo</option>
+          <option value="usado">Usado</option>
+          <option value="seminuevo">Seminuevo</option>
+        </select>
+      </div>
+
+      <div>
+        <label class="block text-xs font-medium text-asphalt mb-1">Disponibilidad</label>
+        <select
+          [value]="disponibilidadFiltro()"
+          (change)="disponibilidadFiltro.set($any($event.target).value)"
+          class="w-full rounded-sm border border-steel/35 bg-white px-3 py-2 text-sm text-asphalt focus:border-signal-amber"
+        >
+          <option value="">Todas</option>
+          <option value="disponible">Disponible</option>
+          <option value="reservado">Reservado</option>
+          <option value="vendido">Vendido</option>
+          <option value="en_preparacion">En Preparación</option>
+          <option value="mantenimiento">Mantenimiento</option>
+          <option value="no_disponible">No Disponible</option>
+        </select>
+      </div>
+
+      <div class="flex items-end">
+        <button
+          type="button"
+          (click)="limpiarFiltros()"
+          class="w-full rounded-sm border border-steel/35 px-3 py-2 text-sm font-medium text-steel transition-colors hover:border-asphalt hover:text-asphalt"
+        >
+          Limpiar Filtros
+        </button>
+      </div>
+    </div>
+  </div>
+
+  @if (error(); as msg) {
+    <div class="mt-4 rounded-sm border border-rust/40 bg-rust/10 px-4 py-3">
+      <p class="text-sm text-rust">{{ msg }}</p>
+    </div>
+  }
+
+  <!-- Lista de vehículos -->
+  <div class="mt-6 space-y-4">
+    @for (vehiculo of vehiculos(); track vehiculo.id) {
+      <div class="rounded-sm border border-steel/25 bg-white p-4 hover:border-steel/40 transition-colors">
+        <div class="flex gap-4">
+          <!-- Imagen -->
+          <div class="flex-shrink-0">
+            <div class="h-24 w-32 rounded-sm bg-steel/10 overflow-hidden">
+              @if (vehiculo.imagenPrincipal) {
+                <img
+                  [src]="vehiculo.imagenPrincipal"
+                  [alt]="vehiculo.marca + ' ' + vehiculo.modelo"
+                  class="h-full w-full object-cover"
+                />
+              } @else {
+                <div class="flex h-full items-center justify-center">
+                  <svg class="h-8 w-8 text-steel/40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                    />
+                  </svg>
+                </div>
+              }
+            </div>
+          </div>
+
+          <!-- Información -->
+          <div class="flex-1 min-w-0">
+            <div class="flex items-start justify-between gap-4">
+              <div>
+                <h3 class="font-display text-lg font-bold text-asphalt">
+                  {{ vehiculo.marca }} {{ vehiculo.modelo }}
+                </h3>
+                <p class="text-sm text-steel">{{ vehiculo.version }} · {{ vehiculo.anio }}</p>
+                <div class="mt-2 flex flex-wrap gap-2">
+                  <span
+                    class="inline-block rounded-sm border px-2 py-1 font-data text-xs uppercase tracking-wider"
+                    [ngClass]="getDisponibilidadClass(vehiculo.disponibilidad)"
+                  >
+                    {{ getDisponibilidadLabel(vehiculo.disponibilidad) }}
+                  </span>
+                  <span class="inline-block rounded-sm border border-steel/30 px-2 py-1 font-data text-xs text-steel">
+                    {{ vehiculo.categoria }}
+                  </span>
+                  <span class="inline-block rounded-sm border border-steel/30 px-2 py-1 font-data text-xs text-steel">
+                    {{ vehiculo.tipo }}
+                  </span>
+                  @if (vehiculo.destacado) {
+                    <span
+                      class="inline-block rounded-sm border border-signal-amber/40 bg-signal-amber/10 px-2 py-1 font-data text-xs text-signal-amber"
+                    >
+                      DESTACADO
+                    </span>
+                  }
+                  @if (vehiculo.oferta) {
+                    <span
+                      class="inline-block rounded-sm border border-verdigris/40 bg-verdigris/10 px-2 py-1 font-data text-xs text-verdigris"
+                    >
+                      OFERTA
+                    </span>
+                  }
+                </div>
+              </div>
+
+              <div class="text-right flex-shrink-0">
+                <p class="font-display text-xl font-bold text-asphalt">
+                  ${{ vehiculo.precio.toLocaleString() }}
+                  <span class="text-sm font-normal text-steel">{{ vehiculo.moneda }}</span>
+                </p>
+                @if (vehiculo.precioAnterior) {
+                  <p class="text-sm text-steel line-through">${{ vehiculo.precioAnterior.toLocaleString() }}</p>
+                }
+                <p class="mt-1 text-xs text-steel">{{ vehiculo.kilometraje.toLocaleString() }} km</p>
+              </div>
+            </div>
+
+            <!-- Acciones -->
+            <div class="mt-4 flex flex-wrap gap-2">
+              <a
+                [routerLink]="['/dashboard/admin/inventario', vehiculo.id, 'editar']"
+                class="inline-flex items-center gap-1.5 rounded-sm border border-steel/35 px-3 py-1.5 text-xs font-medium text-asphalt transition-colors hover:border-asphalt hover:bg-asphalt hover:text-spec-paper"
+              >
+                <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                  />
+                </svg>
+                Editar
+              </a>
+
+              <button
+                type="button"
+                (click)="toggleDestacado(vehiculo.id, vehiculo.destacado)"
+                [disabled]="procesando() === vehiculo.id"
+                class="inline-flex items-center gap-1.5 rounded-sm border border-steel/35 px-3 py-1.5 text-xs font-medium text-asphalt transition-colors hover:border-signal-amber hover:bg-signal-amber hover:text-asphalt disabled:opacity-50"
+              >
+                <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"
+                  />
+                </svg>
+                {{ vehiculo.destacado ? 'Quitar Destacado' : 'Destacar' }}
+              </button>
+
+              <button
+                type="button"
+                (click)="eliminar(vehiculo.id, vehiculo.marca + ' ' + vehiculo.modelo)"
+                [disabled]="procesando() === vehiculo.id"
+                class="inline-flex items-center gap-1.5 rounded-sm border border-rust/35 px-3 py-1.5 text-xs font-medium text-rust transition-colors hover:border-rust hover:bg-rust hover:text-spec-paper disabled:opacity-50"
+              >
+                <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                  />
+                </svg>
+                Eliminar
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    } @empty {
+      <div class="rounded-sm border border-steel/25 bg-white px-6 py-12 text-center">
+        <svg
+          class="mx-auto h-12 w-12 text-steel/40"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+          aria-hidden="true"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2"
+          />
+        </svg>
+        <h3 class="mt-2 text-sm font-medium text-asphalt">Sin vehículos</h3>
+        <p class="mt-1 text-sm text-steel">
+          {{ busqueda() || categoriaFiltro() || tipoFiltro() || disponibilidadFiltro() ? 'No hay resultados con esos filtros.' : 'Comienza agregando tu primer vehículo.' }}
+        </p>
+        @if (!busqueda() && !categoriaFiltro() && !tipoFiltro() && !disponibilidadFiltro()) {
+          <div class="mt-6">
+            <a
+              routerLink="/dashboard/admin/inventario/nuevo"
+              class="inline-flex items-center gap-2 rounded-sm bg-asphalt px-4 py-2 text-sm font-medium text-spec-paper hover:bg-signal-amber hover:text-asphalt"
+            >
+              <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+              </svg>
+              Agregar Vehículo
+            </a>
+          </div>
+        }
+      </div>
+    }
+  </div>
+</section>

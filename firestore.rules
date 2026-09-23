@@ -51,6 +51,16 @@ service cloud.firestore {
     }
 
     // ---------------------------------------------------------------------
+    // vehiculos/{vehiculoId} — inventario de vehículos de la concesionaria.
+    // Lectura pública para catálogo. Escritura solo admin/inventario.
+    // ---------------------------------------------------------------------
+    match /vehiculos/{vehiculoId} {
+      allow read: if true;
+      allow create, update: if esAdministrador();
+      allow delete: if esAdministrador();
+    }
+
+    // ---------------------------------------------------------------------
     // turnos/{turnoId} — el corazón del sistema.
     // Lectura: el dueño, el asesor de su módulo, el admin, o CUALQUIERA sin
     // autenticar si el turno está en cola o siendo atendido (pantalla de
