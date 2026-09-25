@@ -2,7 +2,7 @@ import { Component, inject, signal } from '@angular/core';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
-import { firebaseAuthErrorMessage } from '../../../core/utils/firebase-error.util';
+import { apiErrorMessage } from '../../../core/utils/api-error.util';
 
 @Component({
   selector: 'app-login',
@@ -34,10 +34,10 @@ export class Login {
 
     try {
       const { email, password } = this.form.getRawValue();
-      await this.auth.login(email, password);
-      await this.router.navigateByUrl('/dashboard');
+      const user = await this.auth.login(email, password);
+      await this.router.navigateByUrl(user.debe_cambiar_password ? '/cambiar-password' : '/dashboard');
     } catch (error) {
-      this.errorMessage.set(firebaseAuthErrorMessage(error));
+      this.errorMessage.set(apiErrorMessage(error));
     } finally {
       this.isSubmitting.set(false);
     }

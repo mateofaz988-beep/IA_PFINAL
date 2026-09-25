@@ -1,122 +1,82 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
-import { VehiculosService } from '../../core/services/vehiculos.service';
+import { CatalogoService } from '../../core/services/catalogo.service';
 import { Vehiculo } from '../../core/models/vehiculo.model';
+import { FILTROS_INICIALES, FiltrosCatalogo, OrdenCatalogo, etiquetaCatalogo, filtrarYOrdenarCatalogo } from '../../core/utils/catalogo.util';
+
+type CampoSelect = Exclude<keyof FiltrosCatalogo, 'busqueda' | 'precioMax'>;
 
 @Component({
   selector: 'app-catalogo',
   standalone: true,
-  imports: [RouterLink],
+  imports: [RouterLink, FormsModule],
   templateUrl: './catalogo.html',
+  styleUrl: './catalogo.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Catalogo {
-  private readonly vehiculosService = inject(VehiculosService);
-
-  readonly cargando = signal(true);
-  readonly error = signal<string | null>(null);
+  private readonly catalogoService = inject(CatalogoService);
+  readonly estado = signal<'loading' | 'success' | 'error'>('loading');
   readonly vehiculos = signal<Vehiculo[]>([]);
+  readonly origen = signal<'mysql'>('mysql');
+  readonly filtros = signal<FiltrosCatalogo>({ ...FILTROS_INICIALES });
+  readonly ordenamiento = signal<OrdenCatalogo>('recientes');
+  readonly filtrosAbiertos = signal(false);
+  readonly imagenesFallidas = signal<ReadonlySet<string>>(new Set());
+  readonly skeletons = [1, 2, 3, 4, 5, 6];
+  readonly etiqueta = etiquetaCatalogo;
+  readonly hayFiltros = computed(() => Object.entries(this.filtros()).some(([, valor]) => valor !== '' && valor !== null));
+  readonly mostrarAvisoDemo = computed(() => this.vehiculos().some((v) => v.esDemo));
+  readonly vehiculosFiltrados = computed(() => filtrarYOrdenarCatalogo(this.vehiculos(), this.filtros(), this.ordenamiento()));
 
-  // Filtros
-  readonly filtroMarca = signal('');
-  readonly filtroCategoria = signal('');
-  readonly filtroTipo = signal('');
-  readonly filtroPrecioMax = signal<number | null>(null);
-  readonly ordenamiento = signal<'precio_asc' | 'precio_desc' | 'anio_desc' | 'marca_asc'>('anio_desc');
-
-  // Computados
-  readonly marcasDisponibles = computed(() => {
-    const marcas = new Set(this.vehiculos().map((v) => v.marca));
-    return Array.from(marcas).sort();
+  readonly opcionesFiltros = computed(() => {
+    const campos: { campo: CampoSelect; etiqueta: string }[] = [
+      { campo: 'marca', etiqueta: 'Marca' }, { campo: 'categoria', etiqueta: 'Categoría' },
+      { campo: 'combustible', etiqueta: 'Combustible' }, { campo: 'transmision', etiqueta: 'Transmisión' },
+      { campo: 'anio', etiqueta: 'Año' }, { campo: 'disponibilidad', etiqueta: 'Estado' },
+    ];
+    return campos.map((filtro) => ({
+      ...filtro,
+      opciones: [...new Set(this.vehiculos().map((v) => String(v[filtro.campo])))]
+        .sort((a, b) => filtro.campo === 'anio' ? Number(b) - Number(a) : a.localeCompare(b, 'es'))
+        .map((valor) => ({ valor, etiqueta: etiquetaCatalogo(valor) })),
+    }));
   });
 
-  readonly vehiculosFiltrados = computed(() => {
-    let resultado = this.vehiculos().filter((v) => v.disponibilidad === 'disponible');
+  constructor() { void this.cargarVehiculos(); }
 
-    const marca = this.filtroMarca();
-    if (marca) {
-      resultado = resultado.filter((v) => v.marca === marca);
-    }
-
-    const categoria = this.filtroCategoria();
-    if (categoria) {
-      resultado = resultado.filter((v) => v.categoria === categoria);
-    }
-
-    const tipo = this.filtroTipo();
-    if (tipo) {
-      resultado = resultado.filter((v) => v.tipo === tipo);
-    }
-
-    const precioMax = this.filtroPrecioMax();
-    if (precioMax) {
-      resultado = resultado.filter((v) => v.precio <= precioMax);
-    }
-
-    // Ordenamiento
-    const orden = this.ordenamiento();
-    resultado.sort((a, b) => {
-      switch (orden) {
-        case 'precio_asc':
-          return a.precio - b.precio;
-        case 'precio_desc':
-          return b.precio - a.precio;
-        case 'anio_desc':
-          return b.anio - a.anio;
-        case 'marca_asc':
-          return a.marca.localeCompare(b.marca);
-        default:
-          return 0;
-      }
-    });
-
-    return resultado;
-  });
-
-  readonly totalResultados = computed(() => this.vehiculosFiltrados().length);
-  readonly vehiculosDestacados = computed(() => 
-    this.vehiculos().filter((v) => v.destacado && v.disponibilidad === 'disponible').slice(0, 3)
-  );
-
-  constructor() {
-    this.cargarVehiculos();
-  }
-
-  private async cargarVehiculos(): Promise<void> {
-    this.cargando.set(true);
-    this.error.set(null);
+  async cargarVehiculos(): Promise<void> {
+    this.estado.set('loading');
     try {
-      const vehiculos = await this.vehiculosService.listarDisponiblesAsync();
-      this.vehiculos.set(vehiculos);
-    } catch (err) {
-      this.error.set(err instanceof Error ? err.message : 'No se pudieron cargar los vehículos.');
-    } finally {
-      this.cargando.set(false);
+      const resultado = await this.catalogoService.listar();
+      this.vehiculos.set(resultado.vehiculos);
+      this.origen.set(resultado.origen);
+      this.imagenesFallidas.set(new Set());
+      this.estado.set('success');
+    } catch {
+      this.vehiculos.set([]);
+      this.estado.set('error');
     }
   }
 
-  limpiarFiltros(): void {
-    this.filtroMarca.set('');
-    this.filtroCategoria.set('');
-    this.filtroTipo.set('');
-    this.filtroPrecioMax.set(null);
+  actualizarFiltro<K extends keyof FiltrosCatalogo>(campo: K, valor: FiltrosCatalogo[K]): void {
+    this.filtros.update((actual) => ({ ...actual, [campo]: valor }));
+  }
+
+  actualizarPrecio(valor: number | null): void {
+    this.actualizarFiltro('precioMax', valor === null || !Number.isFinite(valor) ? null : Math.max(0, valor));
+  }
+
+  limpiarFiltros(): void { this.filtros.set({ ...FILTROS_INICIALES }); }
+
+  imagenFallida(id: string): void {
+    this.imagenesFallidas.update((actual) => new Set([...actual, id]));
   }
 
   formatoPrecio(vehiculo: Vehiculo): string {
-    return new Intl.NumberFormat('es-MX', {
-      style: 'currency',
-      currency: vehiculo.moneda,
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(vehiculo.precio);
+    return new Intl.NumberFormat('es-EC', { style: 'currency', currency: vehiculo.moneda, maximumFractionDigits: 0 }).format(vehiculo.precio);
   }
 
-  tieneDescuento(vehiculo: Vehiculo): boolean {
-    return !!vehiculo.precioAnterior && vehiculo.precioAnterior > vehiculo.precio;
-  }
-
-  calcularDescuento(vehiculo: Vehiculo): number {
-    if (!vehiculo.precioAnterior) return 0;
-    return Math.round(((vehiculo.precioAnterior - vehiculo.precio) / vehiculo.precioAnterior) * 100);
-  }
+  formatoKilometraje(valor: number): string { return new Intl.NumberFormat('es-EC').format(valor); }
 }

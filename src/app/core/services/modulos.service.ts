@@ -138,7 +138,7 @@ export class ModulosService {
       if (moduloAnteriorId && moduloAnteriorId !== moduloId) {
         batch.update(doc(db, 'modulos', moduloAnteriorId), { asesorUid: null } satisfies Partial<ModuloDoc>);
       }
-      batch.update(doc(db, 'usuarios', uid), { rol: 'asesor', moduloId } satisfies Partial<UsuarioDoc>);
+      batch.update(doc(db, 'usuarios', uid), { rol: 'vendedor', moduloId } satisfies Partial<UsuarioDoc>);
     }
 
     batch.update(doc(db, 'modulos', moduloId), { asesorUid: uid } satisfies Partial<ModuloDoc>);

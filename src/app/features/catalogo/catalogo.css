@@ -1,0 +1,64 @@
+:host { display: block; }
+.catalog { --line: color-mix(in srgb, var(--color-steel) 25%, transparent); max-width: 1280px; margin: auto; padding: 0 32px; }
+.eyebrow, .filter-field label, .sort label, .clear-filters, .filters-toggle, .results-count, .vehicle-make, .badge, .vehicle-link, .catalog-footer { font-family: var(--font-data); font-size: 11px; line-height: 1.5; text-transform: uppercase; letter-spacing: .12em; }
+.eyebrow::before { content: ''; width: 7px; height: 7px; background: var(--color-signal-amber); }
+h1 { font: 800 clamp(48px, 5.6vw, 78px)/1.02 var(--font-display); letter-spacing: -.035em; margin: 0; }
+h1 span { display: block; }
+.search-box:focus-within { outline: 2px solid var(--color-signal-amber); outline-offset: 2px; }
+.search-box input { width: 100%; min-width: 0; height: 60px; background: transparent; border: 0; font-size: 15px; }
+.search-box input:focus-visible { outline: none; }
+.search-box input::placeholder { color: var(--color-steel); }
+.filter-section { padding: 24px 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+.filter-heading h2 { font: 500 12px var(--font-data); text-transform: uppercase; letter-spacing: .12em; }
+.clear-filters { cursor: pointer; border-bottom: 1px solid var(--color-steel); min-height: 28px; letter-spacing: .04em; }
+.clear-filters:disabled { opacity: .4; cursor: default; border-color: transparent; }
+.filters-toggle { display: none; min-height: 44px; align-items: center; gap: 12px; cursor: pointer; }
+.filter-fields { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 16px; }
+.filter-field { min-width: 0; }
+.filter-field label, .sort label { display: block; color: var(--color-steel); margin-bottom: 8px; font-size: 10px; letter-spacing: .07em; }
+.filter-field select, .filter-field input, .sort select { width: 100%; min-width: 0; height: 42px; border: 1px solid var(--line); background: transparent; padding: 0 9px; font: 13px var(--font-sans); color: var(--color-asphalt); border-radius: 0; }
+select option { background: var(--color-spec-paper); }
+.results-count { font-size: 12px; letter-spacing: .08em; }
+.results-count span { margin-left: 10px; color: var(--color-steel); font: 12px var(--font-sans); text-transform: none; letter-spacing: 0; }
+.sort label { margin: 0; flex-shrink: 0; }
+.sort select { width: 195px; }
+.vehicle-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 28px 24px; }
+.vehicle-specs span + span::before { content: '·'; margin-right: 8px; }
+.vehicle-state::before { content: ''; width: 5px; height: 5px; border-radius: 50%; background: var(--color-asphalt); }
+.vehicle-state.reserved::before { background: var(--color-signal-amber); }
+.vehicle-state.sold { color: var(--color-steel); }
+.vehicle-state.sold::before { background: var(--color-steel); }
+.vehicle-link span { font-size: 22px; line-height: 1; }
+.skeleton { animation: pulse 1.5s ease-in-out infinite alternate; }
+@keyframes pulse { to { opacity: .45; } }
+@media (max-width: 1023px) {
+  .vehicle-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .filter-fields { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .hero-copy { gap: 28px; }
+  .catalog { padding-inline: 24px; }
+}
+@media (max-width: 639px) {
+  .catalog { padding-inline: 16px; }
+  .catalog-hero { padding-top: 38px; padding-bottom: 24px; }
+  .hero-copy { grid-template-columns: 1fr; gap: 22px; margin-top: 20px; }
+  .hero-description { max-width: none; }
+  .hero-description p { font-size: 14px; }
+  .hero-description .selection-note { display: none; }
+  .search-box { margin-top: 26px; padding-inline: 12px; }
+  .search-box input { height: 54px; font-size: 14px; }
+  .filter-section { padding: 12px 0; }
+  .filter-heading { margin: 0; }
+  .filter-heading h2 { display: none; }
+  .filters-toggle { display: flex; }
+  .filter-fields { display: none; grid-template-columns: repeat(2, minmax(0, 1fr)); padding: 16px 0 8px; }
+  .filter-fields.is-open { display: grid; }
+  .results-toolbar { flex-wrap: wrap; margin-block: 26px 20px; gap: 16px; }
+  .sort { width: 100%; justify-content: space-between; }
+  .sort select { width: 205px; }
+  .vehicle-grid { grid-template-columns: minmax(0, 1fr); gap: 22px; }
+  .vehicle-info { padding: 20px; }
+  .state-panel { padding: 48px 16px; }
+  .catalog-footer { margin-top: 40px; }
+}
+.badge { font-size: 9px; }
+.vehicle-make, .catalog-footer { font-size: 10px; }

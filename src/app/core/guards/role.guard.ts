@@ -6,8 +6,8 @@ import { UsuariosService } from '../services/usuarios.service';
 
 /**
  * Guard por rol — el authGuard existente solo confirma que hay sesión.
- * Este además exige que el perfil de Firestore tenga uno de los roles dados.
- * Uso: canActivate: [roleGuard(['administrador'])]
+ * Comprueba el rol devuelto por la API; FastAPI vuelve a validar los permisos.
+ * Uso: canActivate: [roleGuard(['admin'])]
  */
 export function roleGuard(rolesPermitidos: Rol[]): CanActivateFn {
   return async () => {
@@ -20,6 +20,7 @@ export function roleGuard(rolesPermitidos: Rol[]): CanActivateFn {
     if (!user) {
       return router.parseUrl('/login');
     }
+    if (user.debe_cambiar_password) return router.parseUrl('/cambiar-password');
 
     const perfil = await usuarios.obtenerPerfil(user.uid);
     if (perfil && rolesPermitidos.includes(perfil.rol)) {

@@ -24,7 +24,7 @@ export class ModulosAdmin {
   readonly usuarios = toSignal(this.usuariosService.listarTodos(), { initialValue: [] });
 
   /** Candidatos a asesor: cualquiera que no sea ya administrador (a un asesor sí se lo puede reasignar de módulo). */
-  readonly candidatosAsesor = computed(() => this.usuarios().filter((u) => u.rol !== 'administrador'));
+  readonly candidatosAsesor = computed(() => this.usuarios().filter((u) => u.rol !== 'admin'));
 
   readonly editando = signal<Modulo | null>(null);
   readonly guardando = signal(false);

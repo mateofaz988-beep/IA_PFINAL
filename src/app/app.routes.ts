@@ -3,6 +3,10 @@ import { authGuard, guestGuard } from './core/guards/auth.guard';
 import { roleGuard } from './core/guards/role.guard';
 
 export const routes: Routes = [
+  { path: 'agendar-visita/:id', canActivate: [authGuard, roleGuard(['cliente'])], loadComponent: () => import('./features/account/booking').then(m => m.Booking) },
+  { path: 'mis-turnos', canActivate: [authGuard, roleGuard(['cliente'])], loadComponent: () => import('./features/account/appointments').then(m => m.Appointments) },
+  { path: 'mis-favoritos', canActivate: [authGuard, roleGuard(['cliente'])], loadComponent: () => import('./features/account/favorites').then(m => m.Favorites) },
+  { path: 'cambiar-password', canActivate: [authGuard], loadComponent: () => import('./features/auth/change-password').then(m => m.ChangePassword) },
   { path: '', pathMatch: 'full', redirectTo: 'login' },
   {
     path: 'login',
@@ -32,17 +36,11 @@ export const routes: Routes = [
         path: 'asistente',
         loadComponent: () => import('./features/dashboard/assistant/assistant').then((m) => m.Assistant),
       },
-      {
-        path: 'evaluador',
-        loadComponent: () => import('./features/dashboard/form/dashboard-form').then((m) => m.DashboardForm),
-      },
-      {
-        path: 'resultados',
-        loadComponent: () => import('./features/dashboard/results/results').then((m) => m.Results),
-      },
+      { path: 'evaluador', pathMatch: 'full', redirectTo: '/dashboard' },
+      { path: 'resultados', pathMatch: 'full', redirectTo: '/dashboard' },
       {
         path: 'admin',
-        canActivate: [roleGuard(['administrador'])],
+        canActivate: [roleGuard(['admin'])],
         loadComponent: () => import('./features/dashboard/admin/admin-shell/admin-shell').then((m) => m.AdminShell),
         children: [
           { path: '', pathMatch: 'full', redirectTo: 'areas' },
@@ -108,19 +106,19 @@ export const routes: Routes = [
         loadComponent: () => import('./features/dashboard/turnos/mi-turno/mi-turno').then((m) => m.MiTurno),
       },
       {
-        path: 'asesor',
-        canActivate: [roleGuard(['asesor'])],
+        path: 'vendedor',
+        canActivate: [roleGuard(['vendedor'])],
         loadComponent: () => import('./features/dashboard/asesor/panel/panel').then((m) => m.AsesorPanel),
       },
     ],
   },
   {
     path: 'catalogo',
-    loadComponent: () => import('./features/catalogo/catalogo').then((m) => m.Catalogo),
-  },
-  {
-    path: 'catalogo/:id',
-    loadComponent: () => import('./features/catalogo/vehiculo-detalle').then((m) => m.VehiculoDetalle),
+    loadComponent: () => import('./features/catalogo/catalogo-shell').then((m) => m.CatalogoShell),
+    children: [
+      { path: '', loadComponent: () => import('./features/catalogo/catalogo').then((m) => m.Catalogo) },
+      { path: ':id', loadComponent: () => import('./features/catalogo/vehiculo-detalle').then((m) => m.VehiculoDetalle) },
+    ],
   },
   { path: '**', redirectTo: 'login' },
 ];

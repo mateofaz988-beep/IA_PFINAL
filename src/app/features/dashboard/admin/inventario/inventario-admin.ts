@@ -166,6 +166,7 @@ export class InventarioAdmin {
       vendido: 'Vendido',
       en_preparacion: 'En Preparación',
       mantenimiento: 'Mantenimiento',
+      oculto: 'Oculto',
       no_disponible: 'No Disponible',
     };
     return labels[disponibilidad];

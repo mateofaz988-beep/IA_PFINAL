@@ -67,7 +67,7 @@ export class HacermeAdmin {
 
     try {
       await updateDoc(doc(db, 'usuarios', user.uid), {
-        rol: 'administrador',
+        rol: 'admin',
       });
       this.exito.set(true);
     } catch (err) {

@@ -9,6 +9,6 @@ export class EvaluationService {
   private readonly http = inject(HttpClient);
 
   evaluate(payload: EvaluationRequest): Observable<EvaluationResult> {
-    return this.http.post<EvaluationResult>(`${environment.apiUrl}/api/evaluate`, payload);
+    return this.http.post<EvaluationResult>(`${environment.apiUrl}/evaluate`, payload);
   }
 }

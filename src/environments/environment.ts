@@ -1,6 +1,7 @@
 export const environment = {
   production: true,
-  apiUrl: 'https://TU-BACKEND-EN-PRODUCCION.example.com',
+  catalogoDemoFallback: false,
+  apiUrl: 'http://localhost:8000/api',
   carClassifierUrl: 'https://REGION-TU_PROYECTO.cloudfunctions.net/predict',
   assistantUrl: 'https://asistente-421158971863.us-central1.run.app',
   firebase: {

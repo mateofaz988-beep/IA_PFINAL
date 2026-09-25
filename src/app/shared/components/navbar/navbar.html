@@ -1,109 +1,48 @@
-<nav class="border-b border-steel/25 bg-spec-paper">
-  <div class="mx-auto max-w-5xl px-4 sm:px-6 py-3 flex items-center justify-between gap-4">
-    <div class="flex items-center gap-6">
-      <a routerLink="/dashboard" class="flex items-center gap-2.5">
-        <img src="logo.png" alt="" class="h-6 w-auto sm:h-7" />
-        <span class="flex items-baseline gap-2.5">
-          <span class="font-display text-2xl font-bold tracking-tight text-asphalt">AUTOSCAN</span>
-          <span class="hidden sm:inline font-data text-[0.6875rem] uppercase tracking-[0.15em] text-steel">
-            Motors · Turnos
-          </span>
-        </span>
-      </a>
-
-      <div class="hidden md:flex items-center gap-2 font-data text-xs uppercase tracking-wider">
-        <a
-          routerLink="/dashboard"
-          routerLinkActive="border-signal-amber bg-signal-amber/10 text-asphalt"
-          [routerLinkActiveOptions]="{ exact: true }"
-          class="rounded-sm border border-transparent px-3 py-1.5 text-steel transition-colors hover:border-steel/40 hover:text-asphalt"
-        >
-          Inicio
-        </a>
-        <a
-          routerLink="/dashboard/asistente"
-          routerLinkActive="border-signal-amber bg-signal-amber/10 text-asphalt"
-          class="rounded-sm border border-transparent px-3 py-1.5 text-steel transition-colors hover:border-steel/40 hover:text-asphalt"
-        >
-          Asistente
-        </a>
-        <a
-          routerLink="/dashboard/evaluador"
-          routerLinkActive="border-signal-amber bg-signal-amber/10 text-asphalt"
-          class="rounded-sm border border-transparent px-3 py-1.5 text-steel transition-colors hover:border-steel/40 hover:text-asphalt"
-        >
-          Evaluador
-        </a>
-        <a
-          routerLink="/catalogo"
-          routerLinkActive="border-signal-amber bg-signal-amber/10 text-asphalt"
-          class="rounded-sm border border-transparent px-3 py-1.5 text-steel transition-colors hover:border-steel/40 hover:text-asphalt"
-        >
-          Catálogo
-        </a>
-        @if (rol() === 'cliente') {
-          <a
-            routerLink="/dashboard/turnos/solicitar"
-            routerLinkActive="border-signal-amber bg-signal-amber/10 text-asphalt"
-            class="rounded-sm border border-transparent px-3 py-1.5 text-steel transition-colors hover:border-steel/40 hover:text-asphalt"
-          >
-            Solicitar Turno
-          </a>
-          <a
-            routerLink="/dashboard/turnos/historial"
-            routerLinkActive="border-signal-amber bg-signal-amber/10 text-asphalt"
-            class="rounded-sm border border-transparent px-3 py-1.5 text-verdigris transition-colors hover:border-verdigris/40 hover:text-asphalt hover:bg-verdigris/10"
-          >
-            Mis Turnos
-          </a>
-        }
-        @if (rol() === 'asesor') {
-          <a
-            routerLink="/dashboard/asesor"
-            routerLinkActive="border-signal-amber bg-signal-amber/10 text-asphalt"
-            class="rounded-sm border border-transparent px-3 py-1.5 text-steel transition-colors hover:border-steel/40 hover:text-asphalt"
-          >
-            Mi panel
-          </a>
-        }
-        @if (rol() === 'administrador') {
-          <a
-            routerLink="/dashboard/admin"
-            routerLinkActive="border-signal-amber bg-signal-amber/10 text-asphalt"
-            class="rounded-sm border border-transparent px-3 py-1.5 text-rust transition-colors hover:border-rust/40 hover:text-asphalt hover:bg-rust/10"
-          >
-            Administración
-          </a>
-        }
-      </div>
+<header class="site-header" (keydown.escape)="menuAbierto.set(false)">
+  <div class="nav-shell">
+    <a routerLink="/" class="brand" (click)="menuAbierto.set(false)">
+      <img src="/logo.png" alt="AutoScan Motors" width="470" height="264" />
+      <span class="brand-name" aria-hidden="true">
+        <span>AUTOSCAN</span>
+        <span class="brand-subtitle">MOTORS</span>
+      </span>
+    </a>
+    <button type="button" class="menu-toggle" aria-controls="navegacion-principal"
+      [attr.aria-expanded]="menuAbierto()" (click)="menuAbierto.set(!menuAbierto())">
+      {{ menuAbierto() ? 'Cerrar' : 'Menú' }}
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+        @if (menuAbierto()) { <path d="m6 6 12 12M6 18 18 6" /> }
+        @else { <path d="M4 7h16M4 12h16M4 17h16" /> }
+      </svg>
+    </button>
+    <nav id="navegacion-principal" aria-label="Navegación principal" class="navigation"
+      [class.is-open]="menuAbierto()" (click)="menuAbierto.set(false)">
+      <a routerLink="/dashboard" routerLinkActive="active" ariaCurrentWhenActive="page"
+        [routerLinkActiveOptions]="{ exact: true }">Inicio</a>
+      <a routerLink="/dashboard/asistente" routerLinkActive="active" ariaCurrentWhenActive="page">Asistente</a>
+      <a routerLink="/catalogo" routerLinkActive="active" ariaCurrentWhenActive="page">Catálogo</a>
+      <a routerLink="/dashboard/turnos/solicitar" routerLinkActive="active" ariaCurrentWhenActive="page">Turnos</a>
+      @if (rol() === 'cliente') {
+        <a routerLink="/mis-favoritos" routerLinkActive="active" ariaCurrentWhenActive="page">Favoritos</a>
+        <a routerLink="/dashboard/turnos/historial" routerLinkActive="active" ariaCurrentWhenActive="page">Mis turnos</a>
+      }
+      @if (rol() === 'vendedor') {
+        <a routerLink="/dashboard/asesor" routerLinkActive="active" ariaCurrentWhenActive="page">Mi panel</a>
+      }
+      @if (rol() === 'admin') {
+        <a routerLink="/dashboard/admin" routerLinkActive="active" ariaCurrentWhenActive="page">Administración</a>
+      }
+    </nav>
+    <div class="session">
+      @if (cargandoSesion()) {
+        <span class="session-loading" role="status">Cargando sesión…</span>
+      } @else if (currentUser(); as user) {
+        <span class="user-name" [title]="user.email || user.displayName || ''">{{ user.displayName || user.email }}</span>
+        <button type="button" class="session-button" (click)="logout()" aria-label="Cerrar sesión">Salir</button>
+      } @else {
+        <a routerLink="/login" class="session-button">Iniciar sesión <span aria-hidden="true">↗</span></a>
+      }
     </div>
-
-    @if (currentUser(); as user) {
-      <div class="flex items-center gap-3 sm:gap-4">
-        <span class="hidden sm:inline font-data text-xs text-steel">{{ user.email }}</span>
-        <button
-          type="button"
-          (click)="logout()"
-          class="inline-flex items-center gap-1.5 rounded-sm border border-steel/40 px-3 py-1.5 text-sm font-medium text-asphalt transition-colors hover:border-asphalt hover:bg-asphalt hover:text-spec-paper"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="1.75"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            class="h-4 w-4"
-            aria-hidden="true"
-          >
-            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-            <path d="M16 17l5-5-5-5" />
-            <path d="M21 12H9" />
-          </svg>
-          <span class="hidden sm:inline">Cerrar sesión</span>
-        </button>
-      </div>
-    }
   </div>
-</nav>
+  @if (errorSesion()) { <p class="session-error" role="alert">No pudimos cerrar la sesión. Inténtalo nuevamente.</p> }
+</header>

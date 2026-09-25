@@ -1,266 +1,127 @@
-<div class="min-h-screen bg-gradient-to-br from-gray-900 via-blue-900 to-gray-900">
-  <!-- Hero Section -->
-  <div class="bg-gradient-to-r from-blue-600 to-purple-600 py-16">
-    <div class="max-w-7xl mx-auto px-6">
-      <h1 class="text-5xl font-bold text-white mb-4">Catálogo de Vehículos</h1>
-      <p class="text-xl text-blue-100">Encuentra el auto perfecto para ti</p>
+<main class="catalog" id="catalogo">
+  <section class="catalog-hero pt-16 pb-9" aria-labelledby="catalogo-titulo">
+    <p class="eyebrow flex items-center gap-2.5 text-steel">AutoScan Motors · Catálogo</p>
+    <div class="hero-copy mt-[22px] grid grid-cols-[1.4fr_1fr] items-end gap-12">
+      <h1 id="catalogo-titulo">Encuentra el vehículo<span>que va contigo.</span></h1>
+      <div class="hero-description max-w-[360px] pb-1">
+        <p class="selection-note mb-3 font-data text-[11px] uppercase tracking-widest text-asphalt">Vehículos usados seleccionados</p>
+        <p class="text-base leading-[1.7] text-steel">Diseños que perduran. Historias por recorrer. Explora nuestra selección, compara características y encuentra tu próximo destino.</p>
+      </div>
     </div>
-  </div>
+    <label class="sr-only" for="busqueda-catalogo">Buscar marca, modelo o versión</label>
+    <div class="search-box mt-9 flex items-center gap-3.5 border border-steel/25 bg-white/45 px-[18px]">
+      <svg class="h-[21px] w-[21px] shrink-0 text-steel" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5" /><path d="m16 16 5 5" /></svg>
+      <input id="busqueda-catalogo" type="search" placeholder="Buscar marca o modelo..." autocomplete="off"
+        [ngModel]="filtros().busqueda" (ngModelChange)="actualizarFiltro('busqueda', $event)" />
+    </div>
+  </section>
 
-  <div class="max-w-7xl mx-auto px-6 py-12">
-    @if (error()) {
-      <div class="mb-6 p-4 bg-red-500/10 border border-red-500/50 rounded-lg">
-        <p class="text-red-400">{{ error() }}</p>
-      </div>
-    }
-
-    @if (cargando()) {
-      <div class="flex justify-center items-center py-20">
-        <div class="animate-spin rounded-full h-12 w-12 border-4 border-blue-500 border-t-transparent"></div>
-      </div>
-    } @else {
-      <!-- Vehículos Destacados -->
-      @if (vehiculosDestacados().length > 0) {
-        <div class="mb-12">
-          <h2 class="text-3xl font-bold text-white mb-6">Vehículos Destacados</h2>
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-            @for (vehiculo of vehiculosDestacados(); track vehiculo.id) {
-              <a
-                [routerLink]="['/catalogo', vehiculo.id]"
-                class="group bg-gray-800/50 backdrop-blur-sm rounded-xl overflow-hidden border border-gray-700/50 hover:border-blue-500/50 transition-all hover:scale-[1.02]"
-              >
-                <div class="relative h-48 bg-gray-900">
-                  @if (vehiculo.imagenPrincipal) {
-                    <img
-                      [src]="vehiculo.imagenPrincipal"
-                      [alt]="vehiculo.marca + ' ' + vehiculo.modelo"
-                      class="w-full h-full object-cover"
-                    />
-                  }
-                  @if (vehiculo.oferta) {
-                    <div class="absolute top-4 right-4 bg-red-500 text-white px-3 py-1 rounded-full text-sm font-semibold">
-                      OFERTA
-                    </div>
-                  }
-                </div>
-                <div class="p-4">
-                  <h3 class="text-xl font-bold text-white mb-2">
-                    {{ vehiculo.marca }} {{ vehiculo.modelo }}
-                  </h3>
-                  <p class="text-gray-400 mb-3">{{ vehiculo.anio }} • {{ vehiculo.version }}</p>
-                  <div class="text-2xl font-bold text-blue-400">{{ formatoPrecio(vehiculo) }}</div>
-                </div>
-              </a>
+  <section class="filter-section" aria-label="Filtros del catálogo">
+    <div class="filter-heading mb-[18px] flex items-center justify-between gap-4">
+      <h2>Afina tu búsqueda</h2>
+      <button type="button" class="filters-toggle" aria-controls="campos-filtros"
+        [attr.aria-expanded]="filtrosAbiertos()" (click)="filtrosAbiertos.set(!filtrosAbiertos())">
+        Filtros <span aria-hidden="true">{{ filtrosAbiertos() ? '−' : '+' }}</span>
+      </button>
+      <button type="button" class="clear-filters" (click)="limpiarFiltros()" [disabled]="!hayFiltros()">Limpiar filtros</button>
+    </div>
+    <div id="campos-filtros" class="filter-fields" [class.is-open]="filtrosAbiertos()">
+      @for (filtro of opcionesFiltros(); track filtro.campo) {
+        <div class="filter-field">
+          <label [for]="'filtro-' + filtro.campo">{{ filtro.etiqueta }}</label>
+          <select [id]="'filtro-' + filtro.campo" [ngModel]="filtros()[filtro.campo]"
+            (ngModelChange)="actualizarFiltro(filtro.campo, $event)">
+            <option value="">Todos</option>
+            @for (opcion of filtro.opciones; track opcion.valor) {
+              <option [value]="opcion.valor">{{ opcion.etiqueta }}</option>
             }
-          </div>
+          </select>
         </div>
       }
+      <div class="filter-field">
+        <label for="filtro-precio">Precio máximo</label>
+        <input id="filtro-precio" type="number" min="0" step="100" inputmode="numeric" placeholder="Sin límite"
+          [ngModel]="filtros().precioMax" (ngModelChange)="actualizarPrecio($event)" />
+      </div>
+    </div>
+  </section>
 
-      <!-- Filtros y Resultados -->
-      <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
-        <!-- Panel de Filtros -->
-        <div class="lg:col-span-1">
-          <div class="bg-gray-800/50 backdrop-blur-sm rounded-xl p-6 border border-gray-700/50 sticky top-6">
-            <div class="flex justify-between items-center mb-6">
-              <h2 class="text-xl font-semibold text-white">Filtros</h2>
-              <button
-                (click)="limpiarFiltros()"
-                class="text-sm text-blue-400 hover:text-blue-300 transition-colors"
-              >
-                Limpiar
-              </button>
-            </div>
-
-            <div class="space-y-6">
-              <!-- Marca -->
-              <div>
-                <label class="block text-sm font-medium text-gray-300 mb-2">Marca</label>
-                <select
-                  [value]="filtroMarca()"
-                  (change)="filtroMarca.set($any($event.target).value)"
-                  class="w-full px-3 py-2 bg-gray-900/50 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-blue-500"
-                >
-                  <option value="">Todas</option>
-                  @for (marca of marcasDisponibles(); track marca) {
-                    <option [value]="marca">{{ marca }}</option>
-                  }
-                </select>
-              </div>
-
-              <!-- Categoría -->
-              <div>
-                <label class="block text-sm font-medium text-gray-300 mb-2">Categoría</label>
-                <select
-                  [value]="filtroCategoria()"
-                  (change)="filtroCategoria.set($any($event.target).value)"
-                  class="w-full px-3 py-2 bg-gray-900/50 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-blue-500"
-                >
-                  <option value="">Todas</option>
-                  <option value="sedan">Sedán</option>
-                  <option value="suv">SUV</option>
-                  <option value="pickup">Pickup</option>
-                  <option value="hatchback">Hatchback</option>
-                  <option value="coupe">Coupé</option>
-                  <option value="convertible">Convertible</option>
-                  <option value="van">Van</option>
-                  <option value="deportivo">Deportivo</option>
-                </select>
-              </div>
-
-              <!-- Tipo -->
-              <div>
-                <label class="block text-sm font-medium text-gray-300 mb-2">Tipo</label>
-                <select
-                  [value]="filtroTipo()"
-                  (change)="filtroTipo.set($any($event.target).value)"
-                  class="w-full px-3 py-2 bg-gray-900/50 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-blue-500"
-                >
-                  <option value="">Todos</option>
-                  <option value="nuevo">Nuevo</option>
-                  <option value="seminuevo">Seminuevo</option>
-                  <option value="usado">Usado</option>
-                </select>
-              </div>
-
-              <!-- Precio Máximo -->
-              <div>
-                <label class="block text-sm font-medium text-gray-300 mb-2">Precio Máximo</label>
-                <input
-                  type="number"
-                  [value]="filtroPrecioMax() || ''"
-                  (input)="filtroPrecioMax.set($any($event.target).value ? +$any($event.target).value : null)"
-                  placeholder="Sin límite"
-                  class="w-full px-3 py-2 bg-gray-900/50 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-
-              <!-- Ordenamiento -->
-              <div>
-                <label class="block text-sm font-medium text-gray-300 mb-2">Ordenar por</label>
-                <select
-                  [value]="ordenamiento()"
-                  (change)="ordenamiento.set($any($event.target).value)"
-                  class="w-full px-3 py-2 bg-gray-900/50 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-blue-500"
-                >
-                  <option value="anio_desc">Año (más reciente)</option>
-                  <option value="precio_asc">Precio (menor a mayor)</option>
-                  <option value="precio_desc">Precio (mayor a menor)</option>
-                  <option value="marca_asc">Marca (A-Z)</option>
-                </select>
-              </div>
-            </div>
+  <section aria-label="Vehículos del catálogo" [attr.aria-busy]="estado() === 'loading'">
+    @if (estado() === 'loading') {
+      <div class="results-toolbar mt-8 mb-6 flex items-center justify-between gap-5"><p class="results-count" role="status">Cargando selección…</p></div>
+      <div class="vehicle-grid" aria-hidden="true">
+        @for (item of skeletons; track item) {
+          <div class="vehicle-card group min-w-0 flex flex-col border border-steel/25 bg-white/25 transition-colors hover:border-asphalt skeleton">
+            <div class="skeleton-photo aspect-[4/3] bg-steel/10"></div>
+            <div class="skeleton-body p-6"><div class="skeleton-line short mb-4 h-4 w-[38%] bg-steel/10"></div><div class="skeleton-line mb-4 h-4 w-[70%] bg-steel/10"></div><div class="skeleton-line short mb-4 h-4 w-[38%] bg-steel/10"></div></div>
           </div>
-        </div>
-
-        <!-- Grid de Vehículos -->
-        <div class="lg:col-span-3">
-          <div class="mb-6 flex justify-between items-center">
-            <h2 class="text-2xl font-bold text-white">
-              {{ totalResultados() }} vehículo{{ totalResultados() !== 1 ? 's' : '' }} disponible{{ totalResultados() !== 1 ? 's' : '' }}
-            </h2>
-          </div>
-
-          @if (vehiculosFiltrados().length === 0) {
-            <div class="text-center py-20">
-              <svg class="mx-auto h-16 w-16 text-gray-600 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              <p class="text-xl text-gray-400">No se encontraron vehículos con los filtros seleccionados</p>
-              <button
-                (click)="limpiarFiltros()"
-                class="mt-4 px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
-              >
-                Limpiar filtros
-              </button>
-            </div>
-          } @else {
-            <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-              @for (vehiculo of vehiculosFiltrados(); track vehiculo.id) {
-                <a
-                  [routerLink]="['/catalogo', vehiculo.id]"
-                  class="group bg-gray-800/50 backdrop-blur-sm rounded-xl overflow-hidden border border-gray-700/50 hover:border-blue-500/50 transition-all hover:scale-[1.02]"
-                >
-                  <!-- Imagen -->
-                  <div class="relative h-48 bg-gray-900">
-                    @if (vehiculo.imagenPrincipal) {
-                      <img
-                        [src]="vehiculo.imagenPrincipal"
-                        [alt]="vehiculo.marca + ' ' + vehiculo.modelo"
-                        class="w-full h-full object-cover"
-                      />
-                    } @else {
-                      <div class="w-full h-full flex items-center justify-center">
-                        <svg class="w-16 h-16 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                        </svg>
-                      </div>
-                    }
-                    
-                    <!-- Badges -->
-                    <div class="absolute top-4 right-4 flex flex-col gap-2">
-                      @if (vehiculo.oferta) {
-                        <span class="bg-red-500 text-white px-3 py-1 rounded-full text-sm font-semibold">
-                          OFERTA
-                        </span>
-                      }
-                      @if (tieneDescuento(vehiculo)) {
-                        <span class="bg-green-500 text-white px-3 py-1 rounded-full text-sm font-semibold">
-                          -{{ calcularDescuento(vehiculo) }}%
-                        </span>
-                      }
-                    </div>
-
-                    <!-- Tipo -->
-                    <div class="absolute bottom-4 left-4">
-                      <span class="bg-gray-900/80 text-white px-3 py-1 rounded-full text-xs font-medium capitalize">
-                        {{ vehiculo.tipo }}
-                      </span>
-                    </div>
-                  </div>
-
-                  <!-- Información -->
-                  <div class="p-5">
-                    <div class="mb-2">
-                      <h3 class="text-xl font-bold text-white group-hover:text-blue-400 transition-colors">
-                        {{ vehiculo.marca }} {{ vehiculo.modelo }}
-                      </h3>
-                      <p class="text-gray-400">{{ vehiculo.anio }} • {{ vehiculo.version }}</p>
-                    </div>
-
-                    <!-- Especificaciones -->
-                    <div class="flex gap-4 text-sm text-gray-400 mb-4">
-                      <div class="flex items-center gap-1">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
-                        </svg>
-                        <span class="capitalize">{{ vehiculo.transmision }}</span>
-                      </div>
-                      <div class="flex items-center gap-1">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                        <span>{{ vehiculo.kilometraje.toLocaleString() }} km</span>
-                      </div>
-                    </div>
-
-                    <!-- Precio -->
-                    <div class="flex items-baseline gap-2">
-                      @if (tieneDescuento(vehiculo)) {
-                        <div class="text-lg text-gray-500 line-through">
-                          {{ formatoPrecio({ ...vehiculo, precio: vehiculo.precioAnterior! }) }}
-                        </div>
-                      }
-                      <div class="text-2xl font-bold text-blue-400">
-                        {{ formatoPrecio(vehiculo) }}
-                      </div>
-                    </div>
-                  </div>
-                </a>
-              }
-            </div>
-          }
+        }
+      </div>
+    } @else if (estado() === 'error') {
+      <div class="state-panel mt-7 border border-steel/25 px-6 py-[76px] text-center" role="alert">
+        <h2 class="font-display text-[30px] font-bold uppercase">No pudimos cargar el catálogo</h2>
+        <p class="my-6 text-sm text-steel">Inténtalo nuevamente en unos momentos.</p>
+        <button type="button" class="bg-asphalt px-6 py-[13px] font-data text-[11px] uppercase text-spec-paper cursor-pointer hover:bg-signal-amber hover:text-asphalt" (click)="cargarVehiculos()">Reintentar</button>
+      </div>
+    } @else {
+      @if (mostrarAvisoDemo()) {
+        <p class="demo-note mt-6 flex flex-wrap gap-x-3.5 gap-y-1.5 border-l-2 border-signal-amber pl-3.5 text-xs leading-relaxed text-steel"><strong class="font-medium text-asphalt">Selección de demostración académica.</strong>
+          Precios, kilometraje y especificaciones ilustrativos; no constituyen una oferta comercial.</p>
+      }
+      <div class="results-toolbar mt-8 mb-6 flex items-center justify-between gap-5">
+        <p class="results-count" role="status" aria-live="polite">
+          {{ vehiculosFiltrados().length }} {{ vehiculosFiltrados().length === 1 ? 'vehículo' : 'vehículos' }}
+          @if (hayFiltros()) { <span>de {{ vehiculos().length }} en la selección</span> }
+        </p>
+        <div class="sort flex items-center gap-3">
+          <label for="orden-catalogo">Ordenar por</label>
+          <select id="orden-catalogo" [ngModel]="ordenamiento()" (ngModelChange)="ordenamiento.set($event)">
+            <option value="recientes">Más recientes</option>
+            <option value="precio_asc">Precio: menor a mayor</option>
+            <option value="precio_desc">Precio: mayor a menor</option>
+            <option value="kilometraje_asc">Menor kilometraje</option>
+            <option value="anio_desc">Año: más reciente</option>
+            <option value="anio_asc">Año: más antiguo</option>
+          </select>
         </div>
       </div>
+
+      @if (vehiculosFiltrados().length === 0) {
+        <div class="state-panel mt-7 border border-steel/25 px-6 py-[76px] text-center">
+          <svg class="mx-auto mb-5 h-8 w-8 text-steel" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.25" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5" /><path d="m16 16 5 5M7 10.5h7" /></svg>
+          <h2 class="font-display text-[30px] font-bold uppercase">No encontramos vehículos</h2>
+          <p class="my-6 text-sm text-steel">Prueba cambiando los filtros o realizando otra búsqueda.</p>
+          <button type="button" class="bg-asphalt px-6 py-[13px] font-data text-[11px] uppercase text-spec-paper cursor-pointer hover:bg-signal-amber hover:text-asphalt" (click)="limpiarFiltros()">Limpiar filtros</button>
+        </div>
+      } @else {
+        <div class="vehicle-grid">
+          @for (vehiculo of vehiculosFiltrados(); track vehiculo.id; let index = $index) {
+            <article class="vehicle-card group min-w-0 flex flex-col border border-steel/25 bg-white/25 transition-colors hover:border-asphalt" [attr.aria-labelledby]="'titulo-' + vehiculo.id">
+              <div class="vehicle-photo relative grid place-items-center aspect-[4/3] overflow-hidden bg-white border-b border-steel/25">
+                @if (vehiculo.imagenPrincipal && !imagenesFallidas().has(vehiculo.id)) {
+                  <img class="h-full w-full object-contain transition-transform duration-300 group-hover:scale-[1.025]" [src]="vehiculo.imagenPrincipal" [alt]="vehiculo.marca + ' ' + vehiculo.modelo + ', fotografía de referencia'"
+                    width="640" height="480" [attr.loading]="index < 3 ? 'eager' : 'lazy'" decoding="async" (error)="imagenFallida(vehiculo.id)" />
+                } @else { <span class="image-missing text-steel font-data text-[11px] uppercase">Fotografía no disponible</span> }
+                @if (vehiculo.destacado) { <span class="badge absolute top-3.5 left-3.5 bg-signal-amber px-[9px] py-[5px] text-asphalt">Destacado</span> }
+              </div>
+              <div class="vehicle-info flex flex-1 flex-col p-[22px]">
+                <p class="vehicle-make text-steel">{{ vehiculo.marca }}</p>
+                <h3 class="mt-1 mb-3 font-display text-[32px] font-bold leading-[1.15] wrap-anywhere" [id]="'titulo-' + vehiculo.id">{{ vehiculo.modelo }}</h3>
+                <p class="vehicle-specs flex flex-wrap gap-x-2 gap-y-1 text-xs leading-relaxed text-steel">
+                  <span>{{ vehiculo.anio }}</span><span>{{ formatoKilometraje(vehiculo.kilometraje) }} km</span><span>{{ etiqueta(vehiculo.transmision) }}</span>
+                </p>
+                <div class="vehicle-price-row mt-[22px] flex flex-wrap items-baseline gap-2.5"><p class="vehicle-price font-data text-2xl font-medium leading-[1.3] tracking-[-.04em]">{{ formatoPrecio(vehiculo) }}</p><span class="currency font-data text-[10px] text-steel">{{ vehiculo.moneda }}</span></div>
+                <p class="vehicle-state mt-3 flex items-center gap-[7px] font-data text-[10px] uppercase tracking-[.08em]" [class.reserved]="vehiculo.disponibilidad === 'reservado'" [class.sold]="vehiculo.disponibilidad === 'vendido'">{{ etiqueta(vehiculo.disponibilidad) }}</p>
+                <a class="vehicle-link mt-[22px] flex min-h-11 items-center justify-between gap-2.5 border-t border-steel/25 pt-[15px] text-asphalt no-underline hover:underline underline-offset-4" [routerLink]="['/catalogo', vehiculo.id]"
+                  [attr.aria-label]="'Ver vehículo: ' + vehiculo.marca + ' ' + vehiculo.modelo + ' ' + vehiculo.anio">
+                  Ver vehículo <span aria-hidden="true">↗</span>
+                </a>
+              </div>
+            </article>
+          }
+        </div>
+      }
     }
-  </div>
-</div>
+  </section>
+  <footer class="catalog-footer mt-16 flex flex-wrap justify-between gap-3 border-t border-steel/25 pt-6 pb-8 text-steel"><span>AutoScan Motors</span><span>Vehículos con historia. Nuevos caminos.</span></footer>
+</main>

@@ -1,7 +1,6 @@
-import { Timestamp } from 'firebase/firestore';
 
 /** El registro público solo puede crear 'cliente' — asesor/administrador se asignan desde el panel de admin. */
-export type Rol = 'cliente' | 'asesor' | 'administrador';
+export type Rol = 'cliente' | 'vendedor' | 'gerente' | 'admin';
 
 export interface Usuario {
   uid: string;
@@ -10,9 +9,9 @@ export interface Usuario {
   cedula: string;
   telefono: string;
   rol: Rol;
-  /** Módulo asignado actualmente — solo tiene sentido si rol === 'asesor'. */
+  /** Módulo asignado actualmente — solo tiene sentido si rol === 'vendedor'. */
   moduloId: string | null;
-  creadoEn: Timestamp;
+  creadoEn: string;
 }
 
 /** Forma del documento tal como se escribe, sin el uid (que ya es el id del doc). */

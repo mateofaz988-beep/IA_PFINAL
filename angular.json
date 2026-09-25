@@ -23,6 +23,11 @@
               {
                 "glob": "**/*",
                 "input": "public"
+              },
+              {
+                "glob": "{jeep.webp,porche.jpg}",
+                "input": "imagenes",
+                "output": "/imagenes/"
               }
             ],
             "styles": [

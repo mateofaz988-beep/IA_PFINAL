@@ -52,10 +52,12 @@ service cloud.firestore {
 
     // ---------------------------------------------------------------------
     // vehiculos/{vehiculoId} — inventario de vehículos de la concesionaria.
-    // Lectura pública para catálogo. Escritura solo admin/inventario.
+    // Lectura pública solo de estados visibles; el admin puede leer todo.
+    // Las consultas públicas deben incluir este mismo filtro de disponibilidad.
     // ---------------------------------------------------------------------
     match /vehiculos/{vehiculoId} {
-      allow read: if true;
+      allow read: if resource.data.disponibilidad in ['disponible', 'reservado', 'vendido']
+        || esAdministrador();
       allow create, update: if esAdministrador();
       allow delete: if esAdministrador();
     }

@@ -1,6 +1,7 @@
 export const environment = {
   production: false,
-  apiUrl: 'http://localhost:8000',
+  catalogoDemoFallback: true,
+  apiUrl: 'http://localhost:8000/api',
   // Si corres la Cloud Function localmente con `functions-framework --target predict`, usa http://localhost:8080/predict
   carClassifierUrl: 'https://REGION-TU_PROYECTO.cloudfunctions.net/predict',
   assistantUrl: 'https://asistente-421158971863.us-central1.run.app',

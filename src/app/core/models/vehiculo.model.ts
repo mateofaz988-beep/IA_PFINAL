@@ -1,4 +1,4 @@
-import { Timestamp } from 'firebase/firestore';
+import { Fecha as Timestamp } from './fecha';
 
 export type CategoriaVehiculo = 'sedan' | 'suv' | 'pickup' | 'hatchback' | 'coupe' | 'minivan' | 'van' | 'deportivo';
 export type TipoVehiculo = 'nuevo' | 'usado' | 'seminuevo';
@@ -11,6 +11,7 @@ export type DisponibilidadVehiculo =
   | 'vendido'
   | 'en_preparacion'
   | 'mantenimiento'
+  | 'oculto'
   | 'no_disponible';
 
 export interface ImagenVehiculo {
@@ -22,6 +23,7 @@ export interface ImagenVehiculo {
 
 export interface Vehiculo {
   id: string;
+  codigo?: string;
 
   // Identificación
   vin?: string;
@@ -79,6 +81,10 @@ export interface Vehiculo {
   creadoEn: Timestamp;
   actualizadoEn: Timestamp;
   publicadoEn?: Timestamp;
+  /** Identifica explícitamente fichas académicas, también si se siembran en Firestore. */
+  esDemo?: boolean;
+  /** Referencia del dataset; no representa una predicción del modelo desplegado. */
+  referenciaCars196?: string;
 }
 
 export type VehiculoDoc = Omit<Vehiculo, 'id'>;

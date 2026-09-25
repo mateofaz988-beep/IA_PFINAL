@@ -1,7 +1,10 @@
 import { ChangeDetectionStrategy, Component, computed, effect, inject, signal } from '@angular/core';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { VehiculosService } from '../../core/services/vehiculos.service';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { ActivatedRoute, RouterLink } from '@angular/router';
+import { CatalogoService } from '../../core/services/catalogo.service';
 import { Vehiculo } from '../../core/models/vehiculo.model';
+import { ApiService } from '../../core/services/api.service';
+import { apiErrorMessage } from '../../core/utils/api-error.util';
 
 @Component({
   selector: 'app-vehiculo-detalle',
@@ -11,9 +14,20 @@ import { Vehiculo } from '../../core/models/vehiculo.model';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class VehiculoDetalle {
+  private readonly api = inject(ApiService);
+  readonly actionMessage = signal('');
+  readonly actionBusy = signal(false);
+  async favorito(): Promise<void> {
+    if (this.actionBusy() || !this.vehiculo()) return;
+    this.actionBusy.set(true);
+    try { await this.api.post(`/favoritos/${this.vehiculo()!.id}`); this.actionMessage.set('Vehículo guardado en tus favoritos.'); }
+    catch (error) { this.actionMessage.set(apiErrorMessage(error)); }
+    finally { this.actionBusy.set(false); }
+  }
   private readonly route = inject(ActivatedRoute);
-  private readonly router = inject(Router);
-  private readonly vehiculosService = inject(VehiculosService);
+  private readonly parametros = toSignal(this.route.paramMap, { initialValue: this.route.snapshot.paramMap });
+  private readonly catalogoService = inject(CatalogoService);
+  private cargaActual = 0;
 
   readonly cargando = signal(true);
   readonly error = signal<string | null>(null);
@@ -31,12 +45,12 @@ export class VehiculoDetalle {
     if (v.imagenes && v.imagenes.length > 0) {
       urls.push(...v.imagenes.map(img => img.url));
     }
-    return urls;
+    return [...new Set(urls)];
   });
 
   constructor() {
     effect(() => {
-      const id = this.route.snapshot.paramMap.get('id');
+      const id = this.parametros().get('id');
       if (id) {
         this.cargarVehiculo(id);
       }
@@ -44,10 +58,13 @@ export class VehiculoDetalle {
   }
 
   private async cargarVehiculo(id: string): Promise<void> {
+    const carga = ++this.cargaActual;
     this.cargando.set(true);
     this.error.set(null);
+    this.vehiculo.set(null);
     try {
-      const vehiculo = await this.vehiculosService.obtenerPorId(id);
+      const vehiculo = await this.catalogoService.obtenerPorId(id);
+      if (carga !== this.cargaActual) return;
       if (!vehiculo) {
         this.error.set('Vehículo no encontrado.');
         return;
@@ -55,9 +72,10 @@ export class VehiculoDetalle {
       this.vehiculo.set(vehiculo);
       this.imagenSeleccionada.set(vehiculo.imagenPrincipal || '');
     } catch (err) {
-      this.error.set(err instanceof Error ? err.message : 'No se pudo cargar el vehículo.');
+      console.error('[Catálogo] No se pudo cargar el detalle.', err);
+      if (carga === this.cargaActual) this.error.set('No pudimos cargar el vehículo. Inténtalo nuevamente en unos momentos.');
     } finally {
-      this.cargando.set(false);
+      if (carga === this.cargaActual) this.cargando.set(false);
     }
   }
 

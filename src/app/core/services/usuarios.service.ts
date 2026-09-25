@@ -1,126 +1,22 @@
-import { Injectable, computed, effect, inject, signal } from '@angular/core';
-import {
-  DocumentData,
-  DocumentSnapshot,
-  QueryDocumentSnapshot,
-  Unsubscribe,
-  collection,
-  doc,
-  getDoc,
-  onSnapshot,
-  orderBy,
-  query,
-  serverTimestamp,
-  setDoc,
-  updateDoc,
-  writeBatch,
-} from 'firebase/firestore';
-import { Observable } from 'rxjs';
-import { db } from '../firebase/firebase';
-import { ModuloDoc } from '../models/modulo.model';
-import { Rol, Usuario, UsuarioDoc } from '../models/usuario.model';
+import { Injectable, computed, inject } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable, firstValueFrom, map } from 'rxjs';
+import { environment } from '../../../environments/environment';
+import { ApiUser } from '../models/auth.model';
+import { Rol, Usuario } from '../models/usuario.model';
 import { AuthService } from './auth.service';
-import { tieneTurnosEnEstados } from './modulos.service';
 
-function toUsuario(snap: DocumentSnapshot<DocumentData>): Usuario | null {
-  if (!snap.exists()) {
-    return null;
-  }
-  return { uid: snap.id, ...(snap.data() as Omit<Usuario, 'uid'>) };
+function profile(user: ApiUser): Usuario {
+  return { uid: String(user.id), nombre: `${user.nombre} ${user.apellido ?? ''}`.trim(), correo: user.email,
+    cedula: user.documento ?? '', telefono: user.telefono ?? '', rol: user.rol, moduloId: null, creadoEn: user.created_at };
 }
-
-/** Datos capturados en el formulario de registro (ver Register). */
-export interface DatosRegistroUsuario {
-  nombre: string;
-  correo: string;
-  cedula: string;
-  telefono: string;
-}
-
 @Injectable({ providedIn: 'root' })
 export class UsuariosService {
-  private readonly authService = inject(AuthService);
-
-  /** Perfil de Firestore del usuario autenticado; se actualiza solo si algo lo cambia (ej. un admin sube de rol a alguien). */
-  readonly perfil = signal<Usuario | null>(null);
-  readonly rol = computed<Rol | null>(() => this.perfil()?.rol ?? null);
-
-  private unsubscribePerfil?: Unsubscribe;
-
-  constructor() {
-    effect(() => {
-      const user = this.authService.currentUser();
-
-      this.unsubscribePerfil?.();
-      this.unsubscribePerfil = undefined;
-
-      if (!user) {
-        this.perfil.set(null);
-        return;
-      }
-
-      this.unsubscribePerfil = onSnapshot(doc(db, 'usuarios', user.uid), (snap) => {
-        this.perfil.set(toUsuario(snap));
-      });
-    });
-  }
-
-  /** Crea el documento de perfil al registrarse. Siempre como 'cliente' — las reglas de Firestore lo exigen igual. */
-  async crearPerfil(uid: string, datos: DatosRegistroUsuario): Promise<void> {
-    await setDoc(doc(db, 'usuarios', uid), {
-      nombre: datos.nombre,
-      correo: datos.correo,
-      cedula: datos.cedula,
-      telefono: datos.telefono,
-      rol: 'cliente' satisfies Rol,
-      moduloId: null,
-      creadoEn: serverTimestamp(),
-    });
-  }
-
-  /** Lectura puntual (no reactiva) — la usa roleGuard para decidir si una ruta se puede activar. */
-  async obtenerPerfil(uid: string): Promise<Usuario | null> {
-    const snap = await getDoc(doc(db, 'usuarios', uid));
-    return toUsuario(snap);
-  }
-
-  /** Todos los usuarios, para el panel de administración — las reglas exigen que quien llama sea admin. */
-  listarTodos(): Observable<Usuario[]> {
-    return new Observable<Usuario[]>((subscriber) => {
-      const q = query(collection(db, 'usuarios'), orderBy('nombre'));
-      return onSnapshot(
-        q,
-        (snap) => subscriber.next(snap.docs.map((d: QueryDocumentSnapshot<DocumentData>) => toUsuario(d)!)),
-        (error) => subscriber.error(error),
-      );
-    });
-  }
-
-  /**
-   * Cambia el rol de un usuario. Si deja de ser asesor, libera el módulo
-   * que tuviera asignado (y ese módulo queda sin asesor) para no dejar
-   * referencias cruzadas apuntando a alguien que ya no puede atender.
-   */
-  async cambiarRol(uid: string, nuevoRol: Rol): Promise<void> {
-    if (nuevoRol === 'asesor') {
-      await updateDoc(doc(db, 'usuarios', uid), { rol: nuevoRol } satisfies Partial<UsuarioDoc>);
-      return;
-    }
-
-    const snap = await getDoc(doc(db, 'usuarios', uid));
-    const moduloId = snap.exists() ? (snap.data() as UsuarioDoc).moduloId : null;
-
-    if (moduloId && (await tieneTurnosEnEstados(moduloId, ['en_atencion']))) {
-      throw new Error(
-        'Este usuario tiene un turno en atención en su módulo — finalízalo o cancélalo antes de cambiarle el rol.',
-      );
-    }
-
-    const batch = writeBatch(db);
-    batch.update(doc(db, 'usuarios', uid), { rol: nuevoRol, moduloId: null } satisfies Partial<UsuarioDoc>);
-    if (moduloId) {
-      batch.update(doc(db, 'modulos', moduloId), { asesorUid: null } satisfies Partial<ModuloDoc>);
-    }
-    await batch.commit();
-  }
+  private readonly auth = inject(AuthService);
+  private readonly http = inject(HttpClient);
+  readonly perfil = computed(() => { const user = this.auth.currentUser(); return user ? profile(user) : null; });
+  readonly rol = computed<Rol | null>(() => this.auth.currentUser()?.rol ?? null);
+  async obtenerPerfil(uid: string): Promise<Usuario | null> { await this.auth.ready(); return this.perfil()?.uid === uid ? this.perfil() : null; }
+  listarTodos(): Observable<Usuario[]> { return this.http.get<ApiUser[]>(`${environment.apiUrl}/usuarios`).pipe(map(users => users.map(profile))); }
+  async cambiarRol(uid: string, rol: Rol): Promise<void> { await firstValueFrom(this.http.patch(`${environment.apiUrl}/usuarios/${uid}`, { rol })); }
 }
